@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   CircleCheck,
   Clock3,
+  Copy,
   DoorOpen,
   ExternalLink,
   ListChecks,
@@ -20,6 +21,7 @@ import {
   Ticket,
   Wallet
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { Badge } from "@/components/Badge";
 import { ticketChainAbi } from "@/config/ticketchainAbi";
 import { formatEth, parseEth, sepoliaAddressUrl, sepoliaNftUrl, sepoliaTxUrl, shortAddress } from "@/lib/format";
@@ -119,6 +121,8 @@ export default function Home() {
   const [verifyTokenId, setVerifyTokenId] = useState("");
   const [gateTokenId, setGateTokenId] = useState("");
   const [gateStatus, setGateStatus] = useState<GateStatus | null>(null);
+  const [verificationOrigin, setVerificationOrigin] = useState("");
+  const [copiedTokenId, setCopiedTokenId] = useState("");
   const [error, setError] = useState("");
   const [transaction, setTransaction] = useState<TransactionState>({
     phase: "idle",
@@ -138,6 +142,9 @@ export default function Home() {
     if (chainId === EXPECTED_CHAIN_ID) return "Sepolia";
     return `Chain ${chainId}`;
   }, [chainId]);
+
+  const getVerificationPath = (tokenId: bigint) => `/verify?tokenId=${tokenId.toString()}`;
+  const getVerificationUrl = (tokenId: bigint) => `${verificationOrigin || ""}${getVerificationPath(tokenId)}`;
 
   const getSignerContract = useCallback(async () => {
     if (!window.ethereum) {
@@ -397,7 +404,20 @@ export default function Home() {
     }
   };
 
+  const copyVerificationLink = async (tokenId: bigint) => {
+    const url = getVerificationUrl(tokenId);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedTokenId(tokenId.toString());
+      window.setTimeout(() => setCopiedTokenId(""), 1600);
+    } catch {
+      setError("Could not copy the verification link. Open the verification page link instead.");
+    }
+  };
+
   useEffect(() => {
+    setVerificationOrigin(window.location.origin);
+
     const handleAccountsChanged = () => {
       void connectWallet();
     };
@@ -662,9 +682,30 @@ export default function Home() {
                 <p>Owner: {shortAddress(ticket.owner)}</p>
                 <p>Max resale: {formatEth(ticket.maxResalePrice)}</p>
                 {ticket.listed ? <p>Listed at: {formatEth(ticket.resalePrice)}</p> : null}
-                <a href={sepoliaNftUrl(CONTRACT_ADDRESS, ticket.tokenId)} target="_blank" rel="noreferrer">
-                  View NFT on Sepolia <ExternalLink size={14} />
-                </a>
+                <div className="ticket-qr-panel">
+                  <QRCodeSVG
+                    value={getVerificationUrl(ticket.tokenId)}
+                    size={132}
+                    level="H"
+                    marginSize={4}
+                    title={`Verification QR code for TicketChain token ${ticket.tokenId.toString()}`}
+                    className="ticket-qr"
+                  />
+                  <div>
+                    <p className="qr-label">Scan to verify</p>
+                    <code>{getVerificationPath(ticket.tokenId)}</code>
+                    <button className="secondary-button full" onClick={() => void copyVerificationLink(ticket.tokenId)}>
+                      <Copy size={16} />
+                      {copiedTokenId === ticket.tokenId.toString() ? "Copied" : "Copy verification link"}
+                    </button>
+                  </div>
+                </div>
+                <div className="ticket-links">
+                  <a href={getVerificationPath(ticket.tokenId)}>Open verification page</a>
+                  <a href={sepoliaNftUrl(CONTRACT_ADDRESS, ticket.tokenId)} target="_blank" rel="noreferrer">
+                    View NFT on Sepolia <ExternalLink size={14} />
+                  </a>
+                </div>
               </article>
             ))}
           </div>
