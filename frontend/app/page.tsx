@@ -6,6 +6,7 @@ import {
   BadgeDollarSign,
   CheckCircle2,
   ExternalLink,
+  ListChecks,
   Plus,
   RefreshCw,
   Send,
@@ -59,6 +60,13 @@ type Verification = OwnedTicket & {
   valid: boolean;
 };
 
+type TransactionState = {
+  phase: "idle" | "wallet" | "pending" | "confirmed" | "failed";
+  label: string;
+  message: string;
+  hash: string;
+};
+
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
 const EXPECTED_CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID || "11155111");
 
@@ -86,13 +94,18 @@ export default function Home() {
   const [transferForm, setTransferForm] = useState({ tokenId: "", to: "", declaredPrice: "0" });
   const [verifyTokenId, setVerifyTokenId] = useState("");
   const [gateTokenId, setGateTokenId] = useState("");
-  const [pending, setPending] = useState("");
   const [error, setError] = useState("");
-  const [successHash, setSuccessHash] = useState("");
+  const [transaction, setTransaction] = useState<TransactionState>({
+    phase: "idle",
+    label: "",
+    message: "",
+    hash: ""
+  });
 
   const isSepolia = chainId === EXPECTED_CHAIN_ID;
   const isOwner = Boolean(address && owner && address.toLowerCase() === owner.toLowerCase());
   const contractReady = Boolean(CONTRACT_ADDRESS && ethers.isAddress(CONTRACT_ADDRESS));
+  const transactionBusy = transaction.phase === "wallet" || transaction.phase === "pending";
 
   const networkLabel = useMemo(() => {
     if (chainId === null) return "Not connected";
@@ -174,7 +187,7 @@ export default function Home() {
 
   const connectWallet = async () => {
     setError("");
-    setSuccessHash("");
+    setTransaction({ phase: "idle", label: "", message: "", hash: "" });
     try {
       await window.ethereum?.request({ method: "eth_requestAccounts" });
       const { appContract, signerAddress } = await getSignerContract();
@@ -208,19 +221,44 @@ export default function Home() {
       return;
     }
 
-    setPending(label);
     setError("");
-    setSuccessHash("");
+    setTransaction({
+      phase: "wallet",
+      label,
+      message: `${label}: confirm the transaction in MetaMask.`,
+      hash: ""
+    });
 
+    let txHash = "";
     try {
       const tx = await action();
-      setSuccessHash(tx.hash);
-      await tx.wait();
+      txHash = tx.hash;
+      setTransaction({
+        phase: "pending",
+        label,
+        message: `${label}: transaction pending on Sepolia.`,
+        hash: tx.hash
+      });
+
+      const receipt = await tx.wait();
+      if (receipt?.status === 0) {
+        throw new Error("Transaction reverted on-chain.");
+      }
+
       await refreshData();
+      setTransaction({
+        phase: "confirmed",
+        label,
+        message: `${label}: transaction confirmed on Sepolia.`,
+        hash: tx.hash
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Transaction failed.");
-    } finally {
-      setPending("");
+      setTransaction({
+        phase: "failed",
+        label,
+        message: err instanceof Error ? `${label}: ${err.message}` : `${label}: transaction failed.`,
+        hash: txHash
+      });
     }
   };
 
@@ -322,7 +360,7 @@ export default function Home() {
         <div className="wallet-strip">
           <Badge tone={isSepolia ? "green" : "red"}>{networkLabel}</Badge>
           {address ? <span className="address-pill">{shortAddress(address)}</span> : null}
-          <button className="icon-button" onClick={() => void refreshData()} disabled={!contract || Boolean(pending)} title="Refresh">
+          <button className="icon-button" onClick={() => void refreshData()} disabled={!contract || transactionBusy} title="Refresh">
             <RefreshCw size={18} />
           </button>
           {address ? (
@@ -344,18 +382,58 @@ export default function Home() {
           MetaMask is connected to {networkLabel}. <button onClick={() => void switchToSepolia()}>Switch to Sepolia</button>
         </div>
       ) : null}
-      {pending ? <div className="notice pending">{pending}. Waiting for confirmation...</div> : null}
-      {successHash ? (
-        <div className="notice success">
-          Transaction submitted:{" "}
-          <a href={sepoliaTxUrl(successHash)} target="_blank" rel="noreferrer">
-            {shortAddress(successHash)}
-          </a>
+      {transaction.phase !== "idle" ? (
+        <div className={`notice transaction-notice ${transaction.phase}`}>
+          <div>
+            <strong>{transaction.phase === "failed" ? "Transaction failed" : transaction.phase === "confirmed" ? "Transaction confirmed" : "Transaction pending"}</strong>
+            <p>{transaction.message}</p>
+          </div>
+          {transaction.hash ? (
+            <a href={sepoliaTxUrl(transaction.hash)} target="_blank" rel="noreferrer">
+              Sepolia Etherscan <ExternalLink size={14} />
+            </a>
+          ) : null}
         </div>
       ) : null}
       {error ? <div className="notice error">{error}</div> : null}
 
       <section className="dashboard-grid">
+        <section className="workspace span-2 demo-card">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Demo Mode</p>
+              <h2>Live flow</h2>
+            </div>
+            <ListChecks size={22} />
+          </div>
+          <ol className="demo-steps">
+            <li>Connect MetaMask and switch to Sepolia.</li>
+            <li>Create a concert with the owner wallet.</li>
+            <li>Mint a ticket or buy one from the concert card.</li>
+            <li>Open My Tickets and copy the token ID.</li>
+            <li>Verify the token ID and confirm the owner/status.</li>
+            <li>List the ticket for resale, buy it with a second wallet, then verify the owner changed.</li>
+            <li>Use Admin Gate Check to mark the ticket as used.</li>
+            <li>Verify again and show that the same ticket cannot be reused.</li>
+          </ol>
+        </section>
+
+        <section className="workspace why-card">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Why Blockchain?</p>
+              <h2>Public proof</h2>
+            </div>
+            <ShieldCheck size={22} />
+          </div>
+          <p className="why-copy">
+            TicketChain utilise la blockchain parce qu'un billet de concert doit être unique, vérifiable publiquement,
+            transférable de manière contrôlée et impossible à utiliser deux fois. Une base de données classique oblige
+            les acheteurs à faire confiance à une plateforme centrale, alors qu'un NFT permet de vérifier
+            l'authenticité, la propriété et l'historique directement on-chain.
+          </p>
+        </section>
+
         <section className="workspace span-2">
           <div className="section-heading">
             <div>
@@ -382,7 +460,7 @@ export default function Home() {
                   </span>
                 </div>
                 <div className="card-actions">
-                  <button onClick={() => void buyTicket(concert)} disabled={!address || Boolean(pending) || concert.minted >= concert.totalSupply}>
+                  <button onClick={() => void buyTicket(concert)} disabled={!address || transactionBusy || concert.minted >= concert.totalSupply}>
                     <BadgeDollarSign size={17} />
                     Buy Ticket
                   </button>
@@ -408,7 +486,7 @@ export default function Home() {
             <FormInput label="Max resale ETH" value={createForm.maxResalePrice} onChange={(value) => setCreateForm({ ...createForm, maxResalePrice: value })} />
           </div>
           <FormInput label="Total tickets" value={createForm.totalSupply} onChange={(value) => setCreateForm({ ...createForm, totalSupply: value })} />
-          <button className="primary-button full" onClick={() => void createConcert()} disabled={!isOwner || Boolean(pending)}>
+          <button className="primary-button full" onClick={() => void createConcert()} disabled={!isOwner || transactionBusy}>
             <Plus size={18} />
             Create Concert
           </button>
@@ -424,7 +502,7 @@ export default function Home() {
           </div>
           <FormInput label="Concert ID" value={mintForm.concertId} onChange={(value) => setMintForm({ ...mintForm, concertId: value })} />
           <FormInput label="Recipient wallet" value={mintForm.to} onChange={(value) => setMintForm({ ...mintForm, to: value })} />
-          <button className="primary-button full" onClick={() => void mintTicket()} disabled={!isOwner || Boolean(pending)}>
+          <button className="primary-button full" onClick={() => void mintTicket()} disabled={!isOwner || transactionBusy}>
             <Ticket size={18} />
             Mint Ticket
           </button>
@@ -471,14 +549,14 @@ export default function Home() {
           </div>
           <FormInput label="Token ID" value={resaleForm.tokenId} onChange={(value) => setResaleForm({ ...resaleForm, tokenId: value })} />
           <FormInput label="Price ETH" value={resaleForm.price} onChange={(value) => setResaleForm({ ...resaleForm, price: value })} />
-          <button className="primary-button full" onClick={() => void listTicket()} disabled={!address || Boolean(pending)}>
+          <button className="primary-button full" onClick={() => void listTicket()} disabled={!address || transactionBusy}>
             <BadgeDollarSign size={18} />
             List Ticket
           </button>
           <div className="divider" />
           <FormInput label="Listed token ID" value={buyResaleForm.tokenId} onChange={(value) => setBuyResaleForm({ ...buyResaleForm, tokenId: value })} />
           <FormInput label="Listed price ETH" value={buyResaleForm.price} onChange={(value) => setBuyResaleForm({ ...buyResaleForm, price: value })} />
-          <button className="secondary-button full" onClick={() => void buyResaleTicket()} disabled={!address || Boolean(pending)}>
+          <button className="secondary-button full" onClick={() => void buyResaleTicket()} disabled={!address || transactionBusy}>
             Buy Resale Ticket
           </button>
         </section>
@@ -498,7 +576,7 @@ export default function Home() {
             value={transferForm.declaredPrice}
             onChange={(value) => setTransferForm({ ...transferForm, declaredPrice: value })}
           />
-          <button className="primary-button full" onClick={() => void transferTicket()} disabled={!address || Boolean(pending)}>
+          <button className="primary-button full" onClick={() => void transferTicket()} disabled={!address || transactionBusy}>
             <Send size={18} />
             Transfer Ticket
           </button>
@@ -545,7 +623,7 @@ export default function Home() {
             <Badge tone={isOwner ? "green" : "amber"}>{isOwner ? "Ready" : "Owner only"}</Badge>
           </div>
           <FormInput label="Token ID" value={gateTokenId} onChange={setGateTokenId} />
-          <button className="primary-button full" onClick={() => void markAsUsed()} disabled={!isOwner || Boolean(pending)}>
+          <button className="primary-button full" onClick={() => void markAsUsed()} disabled={!isOwner || transactionBusy}>
             <CheckCircle2 size={18} />
             Mark as Used
           </button>

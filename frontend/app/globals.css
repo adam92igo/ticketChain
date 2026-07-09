@@ -197,7 +197,15 @@ button:disabled {
 }
 
 .notice a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-weight: 700;
+}
+
+.notice p {
+  margin: 4px 0 0;
+  color: var(--muted);
 }
 
 .notice.error {
@@ -210,6 +218,26 @@ button:disabled {
 
 .notice.success {
   background: #dff5e9;
+}
+
+.transaction-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.transaction-notice.wallet,
+.transaction-notice.pending {
+  background: #fff0d9;
+}
+
+.transaction-notice.confirmed {
+  background: #dff5e9;
+}
+
+.transaction-notice.failed {
+  background: #ffe2e0;
 }
 
 .dashboard-grid {
@@ -229,6 +257,34 @@ button:disabled {
 
 .span-2 {
   grid-column: span 2;
+}
+
+.demo-card {
+  background: #fffdfa;
+}
+
+.why-card {
+  background: #eef5f1;
+}
+
+.demo-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+  margin: 0;
+  padding-left: 22px;
+}
+
+.demo-steps li {
+  padding-left: 4px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.why-copy {
+  margin-bottom: 0;
+  color: #2f594d;
+  line-height: 1.58;
 }
 
 .section-heading {
@@ -390,6 +446,7 @@ footer {
   .dashboard-grid,
   .concert-grid,
   .ticket-grid,
+  .demo-steps,
   .two-col {
     grid-template-columns: 1fr;
   }
@@ -400,6 +457,11 @@ footer {
 
   .wallet-strip {
     justify-content: flex-start;
+  }
+
+  .transaction-notice {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 

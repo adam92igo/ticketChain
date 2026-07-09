@@ -150,4 +150,48 @@ describe("TicketChain", function () {
     expect(verification.owner).to.equal(ethers.ZeroAddress);
     expect(verification.concertId).to.equal(0n);
   });
+
+  it("supports the full academic demo flow end to end", async function () {
+    const { ticketChain, owner, buyer, secondBuyer } = await networkHelpers.loadFixture(deployTicketChainFixture);
+
+    await expect(ticketChain.mintTicket(1, buyer.address))
+      .to.emit(ticketChain, "TicketMinted")
+      .withArgs(1n, 1n, buyer.address);
+
+    expect(await ticketChain.tokensOfOwner(buyer.address)).to.deep.equal([1n]);
+
+    let verification = await ticketChain.verifyTicket(1);
+    expect(verification.exists).to.equal(true);
+    expect(verification.valid).to.equal(true);
+    expect(verification.owner).to.equal(buyer.address);
+    expect(verification.used).to.equal(false);
+
+    const resalePrice = ethers.parseEther("0.04");
+    await expect(ticketChain.connect(buyer).listTicket(1, resalePrice))
+      .to.emit(ticketChain, "TicketListed")
+      .withArgs(1n, buyer.address, resalePrice);
+
+    await expect(ticketChain.connect(secondBuyer).buyResaleTicket(1, { value: resalePrice }))
+      .to.emit(ticketChain, "TicketResold")
+      .withArgs(1n, buyer.address, secondBuyer.address, resalePrice);
+
+    verification = await ticketChain.verifyTicket(1);
+    expect(verification.owner).to.equal(secondBuyer.address);
+    expect(verification.valid).to.equal(true);
+
+    await expect(ticketChain.markAsUsed(1)).to.emit(ticketChain, "TicketUsed").withArgs(1n, 1n);
+
+    verification = await ticketChain.verifyTicket(1);
+    expect(verification.owner).to.equal(secondBuyer.address);
+    expect(verification.used).to.equal(true);
+    expect(verification.valid).to.equal(false);
+
+    await expect(ticketChain.markAsUsed(1)).to.be.revertedWith("Ticket already used");
+    await expect(ticketChain.connect(secondBuyer).listTicket(1, ethers.parseEther("0.01"))).to.be.revertedWith(
+      "Ticket already used"
+    );
+    await expect(ticketChain.connect(secondBuyer).transferTicket(owner.address, 1, 0)).to.be.revertedWith(
+      "Ticket already used"
+    );
+  });
 });

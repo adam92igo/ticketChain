@@ -182,17 +182,19 @@ If port `3000` is busy, Next.js will suggest another port.
 1. Open the app and connect MetaMask.
 2. Switch MetaMask to Sepolia if the app shows a network warning.
 3. With the deployer wallet, create a concert.
-4. Buy a ticket from the concert card, or mint a ticket to a wallet as owner.
-5. Confirm that the ticket appears in **My Tickets**.
-6. Copy the `tokenId` and verify it in **Verify Ticket**.
-7. List the ticket for resale below the max resale price.
-8. Switch MetaMask to a second wallet.
-9. Buy the listed ticket using **Buy Resale Ticket**.
-10. Verify the same `tokenId` and show that the owner changed.
-11. Switch back to the owner wallet.
-12. Mark the ticket as used in **Admin Gate Check**.
-13. Verify again and show that the ticket is now invalid/used.
-14. Open the transaction or NFT link on Sepolia Etherscan.
+4. Confirm the transaction and wait for the app to show **Transaction confirmed**.
+5. Buy a ticket from the concert card, or mint a ticket to a wallet as owner.
+6. Confirm that the ticket appears in **My Tickets**.
+7. Copy the `tokenId` and verify it in **Verify Ticket**.
+8. List the ticket for resale below the max resale price.
+9. Switch MetaMask to a second wallet.
+10. Buy the listed ticket using **Buy Resale Ticket**.
+11. Verify the same `tokenId` and show that the owner changed.
+12. Switch back to the owner wallet.
+13. Mark the ticket as used in **Admin Gate Check**.
+14. Verify again and show that the ticket is now invalid/used.
+15. Try marking the same ticket as used again and show the transaction fails.
+16. Open the transaction or NFT link on Sepolia Etherscan.
 
 ## MVP Limits
 
