@@ -24,6 +24,7 @@ import {
 import { QRCodeSVG } from "qrcode.react";
 import { Badge } from "@/components/Badge";
 import { ticketChainAbi } from "@/config/ticketchainAbi";
+import { getFriendlyError } from "@/lib/errors";
 import { formatEth, parseEth, sepoliaAddressUrl, sepoliaNftUrl, sepoliaTxUrl, shortAddress } from "@/lib/format";
 
 declare global {
@@ -226,7 +227,7 @@ export default function Home() {
       const { appContract, signerAddress } = await getSignerContract();
       await refreshData(appContract, signerAddress);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Wallet connection failed.");
+      setError(getFriendlyError(err, "Wallet connection failed."));
     }
   };
 
@@ -240,7 +241,7 @@ export default function Home() {
       const { appContract, signerAddress } = await getSignerContract();
       await refreshData(appContract, signerAddress);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not switch network.");
+      setError(getFriendlyError(err, "Could not switch network."));
     }
   };
 
@@ -289,7 +290,7 @@ export default function Home() {
       setTransaction({
         phase: "failed",
         label,
-        message: err instanceof Error ? `${label}: ${err.message}` : `${label}: transaction failed.`,
+        message: `${label}: ${getFriendlyError(err, "Transaction failed.")}`,
         hash: txHash
       });
     }
@@ -376,7 +377,7 @@ export default function Home() {
         resalePrice: data.resalePrice
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Verification failed.");
+      setError(getFriendlyError(err, "Verification failed."));
     }
   };
 
@@ -400,7 +401,7 @@ export default function Home() {
         message: !exists ? "Entry denied: invalid ticket." : used ? "Entry denied: ticket already used." : "Entry approved: valid ticket."
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Gate check failed.");
+      setError(getFriendlyError(err, "Gate check failed."));
     }
   };
 
@@ -538,10 +539,9 @@ export default function Home() {
           <p className="eyebrow">Why Blockchain?</p>
           <h2>Public proof beats platform promises.</h2>
           <p>
-            TicketChain utilise la blockchain parce qu'un billet de concert doit être unique, vérifiable publiquement,
-            transférable de manière contrôlée et impossible à utiliser deux fois. Une base de données classique oblige
-            les acheteurs à faire confiance à une plateforme centrale, alors qu'un NFT permet de vérifier l'authenticité,
-            la propriété et l'historique directement on-chain.
+            TicketChain uses blockchain because a concert ticket must be unique, publicly verifiable, transferable under
+            clear rules, and impossible to use twice. A traditional database makes buyers trust a central platform; an
+            NFT lets anyone verify authenticity, ownership, and history directly on-chain.
           </p>
         </section>
 
@@ -560,7 +560,7 @@ export default function Home() {
             <li>Open My Tickets and copy the token ID.</li>
             <li>Verify the token ID and confirm the owner/status.</li>
             <li>List the ticket for resale, buy it with a second wallet, then verify the owner changed.</li>
-            <li>Use Admin Gate Check to mark the ticket as used.</li>
+            <li>Use Gate Check to mark the ticket as used.</li>
             <li>Verify again and show that the same ticket cannot be reused.</li>
           </ol>
         </section>

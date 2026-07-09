@@ -17,12 +17,13 @@ The app must support this live demo:
 3. Owner creates a concert.
 4. A user buys a ticket, or the owner mints a ticket to a wallet.
 5. The connected user sees the NFT ticket in the UI.
-6. A token ID can be verified publicly.
-7. The owner can transfer or resell the ticket to another wallet.
-8. Verification shows the owner changed.
-9. The contract owner marks the ticket as used.
-10. Verification shows the ticket is no longer valid.
-11. The transaction or NFT can be opened on Sepolia Etherscan.
+6. The ticket card shows its token ID, QR code, and `/verify?tokenId=<id>` link.
+7. Staff can open the QR verification page and see whether the ticket is valid or already used.
+8. The owner can transfer or resell the ticket to another wallet.
+9. Verification shows the owner changed.
+10. The contract owner marks the ticket as used.
+11. Verification shows the ticket is no longer valid.
+12. The transaction or NFT can be opened on Sepolia Etherscan.
 
 ## Tech Stack
 
@@ -44,12 +45,17 @@ contracts/TicketChain.sol        Smart contract
 scripts/deploy.ts                Hardhat deployment script
 test/TicketChain.test.ts         Contract behavior tests
 frontend/app/page.tsx            Main client-side dApp dashboard
+frontend/app/verify/page.tsx     Verification route reading tokenId from the URL
+frontend/app/verify/VerifyTicketClient.tsx Client-side gate verification UI
 frontend/app/globals.css         UI styling
 frontend/components/Badge.tsx    Badge component
 frontend/config/ticketchainAbi.ts Manual frontend ABI
+frontend/lib/errors.ts           Human-readable wallet/contract error helper
 frontend/lib/format.ts           ETH/address/Etherscan helpers
+frontend/public/ticketchain-hero.png Hero image asset
 README.md                        Human-facing setup and demo docs
-.env.example                     Root and frontend env variable examples
+.env.example                     Hardhat/Sepolia deployment env example
+frontend/.env.example            Frontend public env example
 ```
 
 ## Contract Behavior
@@ -81,7 +87,7 @@ Important rules:
 
 ## Frontend Behavior
 
-The frontend is intentionally a single dashboard for demo speed. It includes:
+The frontend is intentionally simple: a polished landing page, a live demo dashboard, and a QR verification route. It includes:
 
 - Wallet connection
 - Network status
@@ -90,10 +96,12 @@ The frontend is intentionally a single dashboard for demo speed. It includes:
 - Primary purchase
 - Owner minting
 - My Tickets
+- Ticket QR codes and copyable `/verify?tokenId=<id>` links
+- Public `/verify` page for gate staff
 - Resale listing and purchase
 - Controlled transfer
 - Ticket verification
-- Admin gate check
+- Gate Check with owner-only `markAsUsed`
 - Sepolia Etherscan links
 
 The browser can only read env variables prefixed with `NEXT_PUBLIC_`.
@@ -159,6 +167,7 @@ npm run frontend:build
 - Do not commit real `.env` files or private keys.
 - If the contract ABI changes, update `frontend/config/ticketchainAbi.ts`.
 - If contract behavior changes, update tests first.
+- Do not change the smart contract for UI-only ticket display, QR code, or scan-flow changes.
 - Before claiming completion, run `npm test` and `npm run frontend:build`.
 - Preserve the current academic framing: the README must clearly explain why blockchain is useful here.
 - Avoid unrelated refactors; the project is designed to be understandable in a short course setting.

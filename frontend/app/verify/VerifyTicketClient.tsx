@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 import { AlertTriangle, CheckCircle2, ExternalLink, RefreshCw, ShieldCheck, Ticket } from "lucide-react";
 import { Badge } from "@/components/Badge";
 import { ticketChainAbi } from "@/config/ticketchainAbi";
+import { getFriendlyError } from "@/lib/errors";
 import { formatEth, sepoliaAddressUrl, sepoliaNftUrl, shortAddress } from "@/lib/format";
 
 type VerificationResult = {
@@ -90,7 +91,7 @@ export default function VerifyTicketClient({ initialTokenId }: { initialTokenId:
       setStatus("");
     } catch (err) {
       setStatus("");
-      setError(err instanceof Error ? err.message : "Ticket verification failed.");
+      setError(getFriendlyError(err, "Ticket verification failed."));
     }
   }, [contractReady, tokenId]);
 
@@ -103,7 +104,7 @@ export default function VerifyTicketClient({ initialTokenId }: { initialTokenId:
       });
       await verifyFromWallet();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not switch network.");
+      setError(getFriendlyError(err, "Could not switch network."));
     }
   };
 

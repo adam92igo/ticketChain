@@ -14,7 +14,7 @@ TicketChain represents each ticket as a unique ERC721 NFT. The smart contract st
 
 ## Why Blockchain?
 
-TicketChain utilise la blockchain parce que chaque billet doit etre unique, verifiable publiquement, transferable de maniere controlee, et impossible a utiliser deux fois. Une base de donnees classique obligerait les acheteurs a faire confiance a une plateforme centrale. Avec un NFT sur une testnet, l'authenticite, la propriete et l'historique de chaque billet peuvent etre verifies directement on-chain.
+TicketChain uses blockchain because every concert ticket must be unique, publicly verifiable, transferable under clear rules, and impossible to use twice. A traditional database would force buyers to trust a central platform. With an NFT on Sepolia, authenticity, ownership, usage status, and ticket history can be verified directly on-chain.
 
 ## Features
 
@@ -24,11 +24,12 @@ TicketChain utilise la blockchain parce que chaque billet doit etre unique, veri
 - Owner-only ticket minting to a chosen address.
 - Primary ticket purchase with test ETH.
 - NFT ticket display for the connected wallet.
+- QR code and `/verify?tokenId=<id>` link for every owned ticket.
 - Resale listing with maximum price enforcement.
 - Resale purchase with ETH payment to the seller.
 - Controlled transfer with declared price cap check.
 - Public ticket verification by `tokenId`.
-- Owner-only gate check with `markAsUsed`.
+- Gate Check flow with owner-only `markAsUsed`.
 - Sepolia Etherscan links for contract, wallets, NFTs, and transactions.
 
 ## Architecture
@@ -45,13 +46,20 @@ ticketchain/
     app/
       layout.tsx
       page.tsx
+      verify/
+        page.tsx
+        VerifyTicketClient.tsx
       globals.css
     components/
       Badge.tsx
     config/
       ticketchainAbi.ts
     lib/
+      errors.ts
       format.ts
+    public/
+      ticketchain-hero.png
+    .env.example
   hardhat.config.ts
   package.json
   .env.example
@@ -111,7 +119,7 @@ SEPOLIA_PRIVATE_KEY=0xyour_wallet_private_key
 After deploying, create the frontend environment file:
 
 ```bash
-cp .env.example frontend/.env.local
+cp frontend/.env.example frontend/.env.local
 ```
 
 Set:
@@ -135,7 +143,7 @@ npm run compile
 npm test
 ```
 
-The test suite covers:
+The Hardhat test suite covers:
 
 - concert creation;
 - ticket minting;
@@ -147,6 +155,8 @@ The test suite covers:
 - double-use rejection;
 - non-owner gate-check rejection;
 - clean response for an unknown token.
+
+The frontend build verifies that the Next.js dashboard and `/verify?tokenId=<id>` route compile successfully.
 
 ## Deploy to Sepolia
 
@@ -185,16 +195,17 @@ If port `3000` is busy, Next.js will suggest another port.
 4. Confirm the transaction and wait for the app to show **Transaction confirmed**.
 5. Buy a ticket from the concert card, or mint a ticket to a wallet as owner.
 6. Confirm that the ticket appears in **My Tickets**.
-7. Copy the `tokenId` and verify it in **Verify Ticket**.
-8. List the ticket for resale below the max resale price.
-9. Switch MetaMask to a second wallet.
-10. Buy the listed ticket using **Buy Resale Ticket**.
-11. Verify the same `tokenId` and show that the owner changed.
-12. Switch back to the owner wallet.
-13. Mark the ticket as used in **Admin Gate Check**.
-14. Verify again and show that the ticket is now invalid/used.
-15. Try marking the same ticket as used again and show the transaction fails.
-16. Open the transaction or NFT link on Sepolia Etherscan.
+7. Show the ticket card with its `tokenId`, QR code, and **Copy verification link** button.
+8. Open `/verify?tokenId=<id>` from the ticket QR/link and show **Valid ticket / Entry approved**.
+9. List the ticket for resale below the max resale price.
+10. Switch MetaMask to a second wallet.
+11. Buy the listed ticket using **Buy Resale Ticket**.
+12. Verify the same `tokenId` and show that the owner changed.
+13. Switch back to the owner wallet.
+14. Use **Gate Check** to verify the token and click **Mark as Used**.
+15. Open `/verify?tokenId=<id>` again and show **Already used / Entry denied**.
+16. Try marking the same ticket as used again and show the transaction fails.
+17. Open the transaction or NFT link on Sepolia Etherscan.
 
 ## MVP Limits
 
@@ -204,10 +215,11 @@ If port `3000` is busy, Next.js will suggest another port.
 - The resale flow is intentionally simple and uses exact ETH values.
 - There is one organizer: the contract owner.
 - The frontend uses a manually maintained ABI in `frontend/config/ticketchainAbi.ts`.
+- The QR code points to the dApp's `/verify` route and uses the same configured contract address.
 
 ## Future Improvements
 
-- IPFS/Arweave metadata and QR-code ticket views.
+- IPFS/Arweave metadata and richer mobile ticket views.
 - Role-based organizers per concert.
 - Royalties or platform fees.
 - Better marketplace discovery for all listed tickets.
