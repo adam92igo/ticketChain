@@ -3,10 +3,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ethers } from "ethers";
 import {
+  AlertTriangle,
+  ArrowRight,
   BadgeDollarSign,
   CheckCircle2,
+  CircleCheck,
+  Clock3,
+  DoorOpen,
   ExternalLink,
   ListChecks,
+  LockKeyhole,
   Plus,
   RefreshCw,
   Send,
@@ -60,6 +66,16 @@ type Verification = OwnedTicket & {
   valid: boolean;
 };
 
+type GateStatus = {
+  checked: boolean;
+  exists: boolean;
+  used: boolean;
+  valid: boolean;
+  message: string;
+  owner: string;
+  concertName: string;
+};
+
 type TransactionState = {
   phase: "idle" | "wallet" | "pending" | "confirmed" | "failed";
   label: string;
@@ -79,6 +95,14 @@ const emptyCreateForm = {
   totalSupply: "50"
 };
 
+const lifecycleSteps = [
+  "Created by organizer",
+  "Minted as NFT",
+  "Resold under price cap",
+  "Verified at the gate",
+  "Marked as used on-chain"
+];
+
 export default function Home() {
   const [address, setAddress] = useState("");
   const [chainId, setChainId] = useState<number | null>(null);
@@ -94,6 +118,7 @@ export default function Home() {
   const [transferForm, setTransferForm] = useState({ tokenId: "", to: "", declaredPrice: "0" });
   const [verifyTokenId, setVerifyTokenId] = useState("");
   const [gateTokenId, setGateTokenId] = useState("");
+  const [gateStatus, setGateStatus] = useState<GateStatus | null>(null);
   const [error, setError] = useState("");
   const [transaction, setTransaction] = useState<TransactionState>({
     phase: "idle",
@@ -106,6 +131,7 @@ export default function Home() {
   const isOwner = Boolean(address && owner && address.toLowerCase() === owner.toLowerCase());
   const contractReady = Boolean(CONTRACT_ADDRESS && ethers.isAddress(CONTRACT_ADDRESS));
   const transactionBusy = transaction.phase === "wallet" || transaction.phase === "pending";
+  const gateTone = !gateStatus?.checked ? "idle" : gateStatus.valid ? "approved" : "denied";
 
   const networkLabel = useMemo(() => {
     if (chainId === null) return "Not connected";
@@ -301,19 +327,33 @@ export default function Home() {
 
   const markAsUsed = async () => {
     await runTransaction("Marking ticket as used", () => contract!.markAsUsed(BigInt(gateTokenId)));
+    setGateStatus((current) =>
+      current
+        ? {
+            ...current,
+            checked: true,
+            used: true,
+            valid: false,
+            message: "Entry approved: ticket marked as used on-chain."
+          }
+        : current
+    );
+  };
+
+  const readVerification = async (tokenId: string) => {
+    if (!contract) {
+      throw new Error("Connect your wallet first.");
+    }
+
+    return contract.verifyTicket(BigInt(tokenId));
   };
 
   const verifyTicket = async () => {
-    if (!contract) {
-      setError("Connect your wallet first.");
-      return;
-    }
-
     setError("");
     setVerification(null);
 
     try {
-      const data = await contract.verifyTicket(BigInt(verifyTokenId));
+      const data = await readVerification(verifyTokenId);
       setVerification({
         exists: data.exists,
         valid: data.valid,
@@ -330,6 +370,30 @@ export default function Home() {
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Verification failed.");
+    }
+  };
+
+  const checkGateTicket = async () => {
+    setError("");
+    setGateStatus(null);
+
+    try {
+      const data = await readVerification(gateTokenId);
+      const exists = Boolean(data.exists);
+      const used = Boolean(data.used);
+      const valid = Boolean(data.valid);
+
+      setGateStatus({
+        checked: true,
+        exists,
+        used,
+        valid,
+        owner: data.owner,
+        concertName: data.concertName,
+        message: !exists ? "Entry denied: invalid ticket." : used ? "Entry denied: ticket already used." : "Entry approved: valid ticket."
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gate check failed.");
     }
   };
 
@@ -352,27 +416,52 @@ export default function Home() {
 
   return (
     <main className="app-shell">
-      <header className="topbar">
-        <div>
-          <p className="eyebrow">TicketChain</p>
-          <h1>Authentic concert tickets, verified on-chain.</h1>
-        </div>
-        <div className="wallet-strip">
-          <Badge tone={isSepolia ? "green" : "red"}>{networkLabel}</Badge>
-          {address ? <span className="address-pill">{shortAddress(address)}</span> : null}
-          <button className="icon-button" onClick={() => void refreshData()} disabled={!contract || transactionBusy} title="Refresh">
-            <RefreshCw size={18} />
-          </button>
-          {address ? (
-            <a className="icon-link" href={sepoliaAddressUrl(address)} target="_blank" rel="noreferrer" title="Open wallet on Etherscan">
-              <ExternalLink size={18} />
-            </a>
-          ) : (
-            <button className="primary-button" onClick={() => void connectWallet()}>
-              <Wallet size={18} />
-              Connect Wallet
+      <header className="hero-section">
+        <nav className="topbar">
+          <div className="brand-lockup">
+            <Ticket size={22} />
+            <span>TicketChain</span>
+          </div>
+          <div className="wallet-strip">
+            <Badge tone={isSepolia ? "green" : "red"}>{networkLabel}</Badge>
+            {address ? <span className="address-pill">{shortAddress(address)}</span> : null}
+            <button className="icon-button" onClick={() => void refreshData()} disabled={!contract || transactionBusy} title="Refresh">
+              <RefreshCw size={18} />
             </button>
-          )}
+            {address ? (
+              <a className="icon-link" href={sepoliaAddressUrl(address)} target="_blank" rel="noreferrer" title="Open wallet on Etherscan">
+                <ExternalLink size={18} />
+              </a>
+            ) : (
+              <button className="primary-button" onClick={() => void connectWallet()}>
+                <Wallet size={18} />
+                Connect Wallet
+              </button>
+            )}
+          </div>
+        </nav>
+        <div className="hero-copy">
+          <p className="eyebrow">NFT ticketing for live events</p>
+          <h1>TicketChain</h1>
+          <p className="hero-slogan">Authentic concert tickets, verified on-chain.</p>
+          <p className="hero-text">
+            A simple Web3 ticketing MVP where every concert ticket is a unique NFT, ownership is public, resale is capped,
+            and entry staff can prevent double use at the gate.
+          </p>
+          <div className="hero-actions">
+            <a className="primary-button button-link" href="#demo-console">
+              Open live demo <ArrowRight size={18} />
+            </a>
+            <a className="secondary-button button-link" href="#why-blockchain">
+              Why blockchain?
+            </a>
+          </div>
+        </div>
+        <div className="hero-proof-strip">
+          <span>Unique NFT</span>
+          <span>Public owner</span>
+          <span>Resale cap</span>
+          <span>One-time entry</span>
         </div>
       </header>
 
@@ -397,8 +486,46 @@ export default function Home() {
       ) : null}
       {error ? <div className="notice error">{error}</div> : null}
 
-      <section className="dashboard-grid">
-        <section className="workspace span-2 demo-card">
+      <section className="landing-grid">
+        <section className="story-panel problem-panel">
+          <div className="story-icon">
+            <AlertTriangle size={22} />
+          </div>
+          <p className="eyebrow">Problem</p>
+          <h2>Tickets are easy to fake and hard to trust.</h2>
+          <p>
+            Buyers can receive duplicated PDFs, lose visibility after resale, or pay abusive prices without a public way
+            to verify the ticket before arriving at the venue.
+          </p>
+        </section>
+
+        <section className="story-panel solution-panel">
+          <div className="story-icon">
+            <CircleCheck size={22} />
+          </div>
+          <p className="eyebrow">Solution</p>
+          <h2>Each ticket becomes a verifiable NFT.</h2>
+          <p>
+            TicketChain stores ticket ownership, resale rules, and usage status on-chain, so authenticity and history can
+            be checked directly from the dApp or Sepolia Etherscan.
+          </p>
+        </section>
+
+        <section className="story-panel why-panel" id="why-blockchain">
+          <div className="story-icon">
+            <LockKeyhole size={22} />
+          </div>
+          <p className="eyebrow">Why Blockchain?</p>
+          <h2>Public proof beats platform promises.</h2>
+          <p>
+            TicketChain utilise la blockchain parce qu'un billet de concert doit être unique, vérifiable publiquement,
+            transférable de manière contrôlée et impossible à utiliser deux fois. Une base de données classique oblige
+            les acheteurs à faire confiance à une plateforme centrale, alors qu'un NFT permet de vérifier l'authenticité,
+            la propriété et l'historique directement on-chain.
+          </p>
+        </section>
+
+        <section className="story-panel demo-card">
           <div className="section-heading">
             <div>
               <p className="eyebrow">Demo Mode</p>
@@ -418,22 +545,26 @@ export default function Home() {
           </ol>
         </section>
 
-        <section className="workspace why-card">
+        <section className="story-panel lifecycle-panel">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Why Blockchain?</p>
-              <h2>Public proof</h2>
+              <p className="eyebrow">Ticket lifecycle</p>
+              <h2>From organizer to gate.</h2>
             </div>
-            <ShieldCheck size={22} />
+            <Clock3 size={22} />
           </div>
-          <p className="why-copy">
-            TicketChain utilise la blockchain parce qu'un billet de concert doit être unique, vérifiable publiquement,
-            transférable de manière contrôlée et impossible à utiliser deux fois. Une base de données classique oblige
-            les acheteurs à faire confiance à une plateforme centrale, alors qu'un NFT permet de vérifier
-            l'authenticité, la propriété et l'historique directement on-chain.
-          </p>
+          <div className="lifecycle-rail">
+            {lifecycleSteps.map((step, index) => (
+              <div className="lifecycle-step" key={step}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <p>{step}</p>
+              </div>
+            ))}
+          </div>
         </section>
+      </section>
 
+      <section className="dashboard-grid" id="demo-console">
         <section className="workspace span-2">
           <div className="section-heading">
             <div>
@@ -614,19 +745,39 @@ export default function Home() {
           ) : null}
         </section>
 
-        <section className="workspace">
+        <section className="workspace gate-panel">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Entrance control</p>
-              <h2>Admin Gate Check</h2>
+              <p className="eyebrow">Gate Check</p>
+              <h2>Entrance control</h2>
             </div>
             <Badge tone={isOwner ? "green" : "amber"}>{isOwner ? "Ready" : "Owner only"}</Badge>
           </div>
           <FormInput label="Token ID" value={gateTokenId} onChange={setGateTokenId} />
-          <button className="primary-button full" onClick={() => void markAsUsed()} disabled={!isOwner || transactionBusy}>
-            <CheckCircle2 size={18} />
-            Mark as Used
-          </button>
+          <div className="gate-actions">
+            <button className="secondary-button full" onClick={() => void checkGateTicket()} disabled={!address || !gateTokenId}>
+              <DoorOpen size={18} />
+              Check Ticket
+            </button>
+            <button className="primary-button full" onClick={() => void markAsUsed()} disabled={!isOwner || transactionBusy || !gateStatus?.valid}>
+              <CheckCircle2 size={18} />
+              Mark as Used
+            </button>
+          </div>
+          <div className={`gate-result ${gateTone}`}>
+            <div className="gate-result-icon">
+              {gateTone === "approved" ? <CircleCheck size={22} /> : gateTone === "denied" ? <AlertTriangle size={22} /> : <ShieldCheck size={22} />}
+            </div>
+            <div>
+              <strong>{gateTone === "approved" ? "Valid ticket" : gateTone === "denied" ? (gateStatus?.used ? "Already used" : "Invalid ticket") : "Awaiting scan"}</strong>
+              <p>{gateStatus?.message || "Enter a token ID to verify this ticket before admitting the attendee."}</p>
+              {gateStatus?.exists ? (
+                <p>
+                  {gateStatus.concertName} · Owner {shortAddress(gateStatus.owner)}
+                </p>
+              ) : null}
+            </div>
+          </div>
         </section>
       </section>
 
