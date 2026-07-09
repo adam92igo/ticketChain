@@ -88,6 +88,7 @@ Main functions:
 - `getConcert(concertId)`
 - `getTicket(tokenId)`
 - `tokensOfOwner(owner)`
+- `withdraw()`
 
 ## Install
 

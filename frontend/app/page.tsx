@@ -248,11 +248,11 @@ export default function Home() {
   const runTransaction = async (label: string, action: () => Promise<ethers.ContractTransactionResponse>) => {
     if (!contract) {
       setError("Connect your wallet first.");
-      return;
+      return false;
     }
     if (!isSepolia) {
       setError("Switch MetaMask to Sepolia before sending transactions.");
-      return;
+      return false;
     }
 
     setError("");
@@ -286,6 +286,7 @@ export default function Home() {
         message: `${label}: transaction confirmed on Sepolia.`,
         hash: tx.hash
       });
+      return true;
     } catch (err) {
       setTransaction({
         phase: "failed",
@@ -293,6 +294,7 @@ export default function Home() {
         message: `${label}: ${getFriendlyError(err, "Transaction failed.")}`,
         hash: txHash
       });
+      return false;
     }
   };
 
@@ -334,7 +336,11 @@ export default function Home() {
   };
 
   const markAsUsed = async () => {
-    await runTransaction("Marking ticket as used", () => contract!.markAsUsed(BigInt(gateTokenId)));
+    const confirmed = await runTransaction("Marking ticket as used", () => contract!.markAsUsed(BigInt(gateTokenId)));
+    if (!confirmed) {
+      return;
+    }
+
     setGateStatus((current) =>
       current
         ? {
@@ -352,8 +358,11 @@ export default function Home() {
     if (!contract) {
       throw new Error("Connect your wallet first.");
     }
+    if (!/^\d+$/.test(tokenId.trim())) {
+      throw new Error("Enter a numeric token ID.");
+    }
 
-    return contract.verifyTicket(BigInt(tokenId));
+    return contract.verifyTicket(BigInt(tokenId.trim()));
   };
 
   const verifyTicket = async () => {

@@ -61,6 +61,9 @@ export default function VerifyTicketClient({ initialTokenId }: { initialTokenId:
       if (!tokenId) {
         throw new Error("Missing tokenId in the verification URL.");
       }
+      if (!/^\d+$/.test(tokenId.trim())) {
+        throw new Error("Enter a numeric token ID.");
+      }
 
       const provider = new ethers.BrowserProvider(ethereum);
       const network = await provider.getNetwork();
@@ -72,7 +75,7 @@ export default function VerifyTicketClient({ initialTokenId }: { initialTokenId:
       }
 
       const contract = new ethers.Contract(CONTRACT_ADDRESS, ticketChainAbi, provider);
-      const data = await contract.verifyTicket(BigInt(tokenId));
+      const data = await contract.verifyTicket(BigInt(tokenId.trim()));
 
       setResult({
         exists: data.exists,
