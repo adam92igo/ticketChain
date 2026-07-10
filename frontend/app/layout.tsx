@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { ExternalLink } from "lucide-react";
+import { AppHeader } from "@/components/AppHeader";
+import { TransactionStatus } from "@/components/TransactionStatus";
+import { CONTRACT_ADDRESS } from "@/config/app";
+import { TicketChainProvider } from "@/context/TicketChainContext";
+import { sepoliaAddressUrl, shortAddress } from "@/lib/format";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,7 +20,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <TicketChainProvider>
+          <div className="site-shell">
+            <AppHeader />
+            <TransactionStatus />
+            <main className="app-content">{children}</main>
+            <footer className="app-footer">
+              <span>Sepolia contract</span>
+              {CONTRACT_ADDRESS ? (
+                <a href={sepoliaAddressUrl(CONTRACT_ADDRESS)} target="_blank" rel="noreferrer">
+                  {shortAddress(CONTRACT_ADDRESS)} <ExternalLink size={13} />
+                </a>
+              ) : (
+                <span>Not configured</span>
+              )}
+            </footer>
+          </div>
+        </TicketChainProvider>
+      </body>
     </html>
   );
 }
