@@ -9,3 +9,4 @@ types
 frontend/.next
 frontend/out
 frontend/.env.local
+.worktrees/

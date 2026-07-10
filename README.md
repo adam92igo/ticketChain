@@ -31,6 +31,20 @@ TicketChain uses blockchain because every concert ticket must be unique, publicl
 - Public ticket verification by `tokenId`.
 - Gate Check flow with owner-only `markAsUsed`.
 - Sepolia Etherscan links for contract, wallets, NFTs, and transactions.
+- Multi-page application shell with responsive navigation and shared wallet state.
+
+## Frontend Routes
+
+- `/` — concise product landing page.
+- `/concerts` — concert inventory, organizer creation/minting, and primary purchase.
+- `/tickets` — connected-wallet NFTs, QR links, resale listing, and transfer.
+- `/marketplace` — exact-token listing inspection and resale purchase.
+- `/gate` — staff ticket checks and organizer-only `markAsUsed`.
+- `/verify?tokenId=<id>` — QR-first public verification route.
+- `/demo` — jury demo script, backup checklist, and MetaMask troubleshooting.
+- `/about` — problem, solution, blockchain rationale, lifecycle, and business summary.
+
+The Marketplace intentionally does not claim global listing discovery. In this MVP, a buyer checks and purchases a known token ID. A production implementation would index `TicketListed` and related contract events through a backend or event indexer.
 
 ## Architecture
 
@@ -46,12 +60,25 @@ ticketchain/
     app/
       layout.tsx
       page.tsx
+      about/page.tsx
+      concerts/page.tsx
+      demo/page.tsx
+      gate/page.tsx
+      marketplace/page.tsx
+      tickets/page.tsx
       verify/
         page.tsx
         VerifyTicketClient.tsx
       globals.css
     components/
-      Badge.tsx
+      AppHeader.tsx
+      ConcertCard.tsx
+      QRCodeBlock.tsx
+      TicketCard.tsx
+      TransactionStatus.tsx
+      ...
+    context/
+      TicketChainContext.tsx
     config/
       ticketchainAbi.ts
     lib/
@@ -157,7 +184,7 @@ The Hardhat test suite covers:
 - non-owner gate-check rejection;
 - clean response for an unknown token.
 
-The frontend build verifies that the Next.js dashboard and `/verify?tokenId=<id>` route compile successfully.
+The frontend build verifies that all application routes and the dynamic `/verify?tokenId=<id>` flow compile successfully.
 
 ## Deploy to Sepolia
 
@@ -190,23 +217,23 @@ If port `3000` is busy, Next.js will suggest another port.
 
 ## Live Demo Script
 
-1. Open the app and connect MetaMask.
-2. Switch MetaMask to Sepolia if the app shows a network warning.
-3. With the deployer wallet, create a concert.
-4. Confirm the transaction and wait for the app to show **Transaction confirmed**.
-5. Buy a ticket from the concert card, or mint a ticket to a wallet as owner.
-6. Confirm that the ticket appears in **My Tickets**.
-7. Show the ticket card with its `tokenId`, QR code, and **Copy verification link** button.
-8. Open `/verify?tokenId=<id>` from the ticket QR/link and show **Valid ticket / Entry approved**.
-9. List the ticket for resale below the max resale price.
-10. Switch MetaMask to a second wallet.
-11. Buy the listed ticket using **Buy Resale Ticket**.
-12. Verify the same `tokenId` and show that the owner changed.
-13. Switch back to the owner wallet.
-14. Use **Gate Check** to verify the token and click **Mark as Used**.
-15. Open `/verify?tokenId=<id>` again and show **Already used / Entry denied**.
-16. Try marking the same ticket as used again and show the transaction fails.
-17. Open the transaction or NFT link on Sepolia Etherscan.
+1. Open the app, connect MetaMask, and confirm the header shows **Sepolia**.
+2. Open **Concerts** with the deployer wallet and create a concert.
+3. Wait for the global status notice to show **Transaction confirmed**.
+4. Mint a ticket to the attendee wallet, or buy a ticket from its concert card.
+5. Open **My Tickets** with the attendee wallet.
+6. Show the ticket card, `tokenId`, QR code, and **Copy verification link** action.
+7. Open `/verify?tokenId=<id>` from the QR/link and show **Valid ticket / Entry approved**.
+8. Return to **My Tickets** and list the ticket below its maximum resale price, or transfer it directly.
+9. For resale, switch to the buyer wallet, open **Marketplace**, inspect the exact token ID, and buy at the displayed on-chain price.
+10. Verify the same token ID and show that the owner changed.
+11. Switch back to the organizer wallet and open **Gate Check**.
+12. Check the token ID, then click **Mark as Used** and wait for confirmation.
+13. Verify the token again and show **Already used / Entry denied**.
+14. Reject or fail a repeated gate transaction and point out that the UI does not claim a successful state change.
+15. Open the transaction or NFT link on Sepolia Etherscan.
+
+The in-app `/demo` page contains the presentation-ready 13-step jury script, wallet requirements, backup token checklist, and MetaMask recovery tips.
 
 ## MVP Limits
 
