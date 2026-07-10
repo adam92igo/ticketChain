@@ -223,7 +223,7 @@ If port `3000` is busy, Next.js will suggest another port.
 4. Mint a ticket to the attendee wallet, or buy a ticket from its concert card.
 5. Open **My Tickets** with the attendee wallet.
 6. Show the ticket card, `tokenId`, QR code, and **Copy verification link** action.
-7. Open `/verify?tokenId=<id>` from the QR/link and show **Valid ticket / Entry approved**.
+7. Open `/verify?tokenId=<id>` from the QR/link, use **Verify On-Chain** if needed, and show the **NFT #** badge with **Valid ticket / Entry approved**.
 8. Return to **My Tickets** and list the ticket below its maximum resale price, or transfer it directly.
 9. For resale, switch to the buyer wallet, open **Marketplace**, inspect the exact token ID, and buy at the displayed on-chain price.
 10. Verify the same token ID and show that the owner changed.

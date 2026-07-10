@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, DoorOpen, ExternalLink, ScanLine, ShieldCheck } from "lucide-react";
+import { AlertTriangle, CheckCircle2, DoorOpen, ExternalLink, ScanLine, ShieldCheck, Ticket } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { FormInput } from "@/components/FormInput";
 import { PageHeader } from "@/components/PageHeader";
@@ -99,11 +99,16 @@ export default function GatePage() {
                 <h2>{decision.title}</h2>
                 <p>{recorded ? "Entry recorded: ticket marked as used on-chain." : decision.message}</p>
                 {result.exists ? (
-                  <dl className="ticket-details">
-                    <div><dt>Token</dt><dd>#{result.tokenId.toString()}</dd></div>
-                    <div><dt>Concert</dt><dd>{result.concertName}</dd></div>
-                    <div><dt>Owner</dt><dd>{shortAddress(result.owner)}</dd></div>
-                  </dl>
+                  <>
+                    <div className="result-summary-row">
+                      <span className="ticket-stub result-token-badge"><Ticket size={16} /> NFT #{result.tokenId.toString()}</span>
+                      <span className="result-concert">{result.concertName}</span>
+                    </div>
+                    <dl className="ticket-details result-metadata-grid">
+                      <div><dt>Owner</dt><dd className="address-value" title={result.owner}>{shortAddress(result.owner)}</dd></div>
+                      <div><dt>Blockchain</dt><dd>Ethereum Sepolia</dd></div>
+                    </dl>
+                  </>
                 ) : null}
                 {result.exists ? (
                   <a className="inline-link" href={sepoliaNftUrl(CONTRACT_ADDRESS, result.tokenId)} target="_blank" rel="noreferrer">

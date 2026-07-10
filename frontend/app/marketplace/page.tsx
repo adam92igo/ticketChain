@@ -114,7 +114,7 @@ export default function MarketplacePage() {
               <p>{marketplaceCopy[state][1]}</p>
               {result.exists ? (
                 <dl className="ticket-details">
-                  <div><dt>Owner / seller</dt><dd>{shortAddress(result.owner)}</dd></div>
+                  <div><dt>Owner / seller</dt><dd className="address-value" title={result.owner}>{shortAddress(result.owner)}</dd></div>
                   <div><dt>Resale price</dt><dd>{result.listed ? formatEth(result.resalePrice) : "Not listed"}</dd></div>
                   <div><dt>Maximum resale</dt><dd>{formatEth(result.maxResalePrice)}</dd></div>
                 </dl>

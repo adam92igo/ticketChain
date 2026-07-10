@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, ExternalLink, RefreshCw, ShieldCheck } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ExternalLink, RefreshCw, ShieldCheck, Ticket } from "lucide-react";
 import { FormInput } from "@/components/FormInput";
 import { StatusBadge } from "@/components/StatusBadge";
 import { CONTRACT_ADDRESS } from "@/config/app";
@@ -51,13 +51,13 @@ export default function VerifyTicketClient({ initialTokenId }: { initialTokenId:
       <section className="verify-layout">
         <article className="verify-card">
           <div className="section-heading">
-            <div><p className="eyebrow">Token lookup</p><h2>Verify ticket</h2></div>
+            <div><p className="eyebrow">Token lookup</p><h2>Verify on-chain</h2></div>
             <StatusBadge label={chainId === null ? "Wallet network unavailable" : isSepolia ? "Sepolia" : `Chain ${chainId}`} tone={isSepolia ? "green" : "red"} />
           </div>
           <FormInput label="Token ID" value={tokenId} inputMode="numeric" placeholder="Enter a numeric token ID" onChange={setTokenId} />
           <div className="verify-actions">
             <button className="primary-button" onClick={() => void verifyFromWallet()}>
-              <ShieldCheck size={17} /> Verify Ticket
+              <ShieldCheck size={17} /> Verify On-Chain
             </button>
             {contractReady ? (
               <a className="secondary-button button-link" href={sepoliaAddressUrl(CONTRACT_ADDRESS)} target="_blank" rel="noreferrer">
@@ -84,11 +84,15 @@ export default function VerifyTicketClient({ initialTokenId }: { initialTokenId:
                 <h2>{decision.title}</h2>
                 {result.exists ? (
                   <>
-                    <p>Token #{result.tokenId.toString()} · {result.concertName}</p>
-                    <p>{result.location} · {result.date}</p>
-                    <dl className="ticket-details">
-                      <div><dt>Owner</dt><dd>{shortAddress(result.owner)}</dd></div>
+                    <div className="result-summary-row">
+                      <span className="ticket-stub result-token-badge"><Ticket size={16} /> NFT #{result.tokenId.toString()}</span>
+                      <span className="result-concert">{result.concertName}</span>
+                    </div>
+                    <p className="result-venue">{result.location} · {result.date}</p>
+                    <dl className="ticket-details result-metadata-grid">
+                      <div><dt>Owner</dt><dd className="address-value" title={result.owner}>{shortAddress(result.owner)}</dd></div>
                       <div><dt>Status</dt><dd>{result.used ? "Used" : result.listed ? "For Sale" : "Valid"}</dd></div>
+                      <div><dt>Blockchain</dt><dd>Ethereum Sepolia</dd></div>
                       <div><dt>Max resale</dt><dd>{formatEth(result.maxResalePrice)}</dd></div>
                       {result.listed ? <div><dt>Listed price</dt><dd>{formatEth(result.resalePrice)}</dd></div> : null}
                     </dl>

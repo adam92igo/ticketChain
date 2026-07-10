@@ -11,13 +11,13 @@ export function TicketCard({ ticket }: { ticket: OwnedTicket }) {
   return (
     <article className="owned-ticket">
       <div className="ticket-card-topline">
-        <span className="ticket-stub"><Ticket size={17} /> Token #{ticket.tokenId.toString()}</span>
+        <span className="ticket-stub"><Ticket size={17} /> NFT #{ticket.tokenId.toString()}</span>
         <StatusBadge label={status.label} tone={status.tone} />
       </div>
       <h3>{ticket.concertName}</h3>
       <p className="card-location"><MapPin size={15} /> {ticket.location} · {ticket.date}</p>
       <dl className="ticket-details">
-        <div><dt>Owner</dt><dd>{shortAddress(ticket.owner)}</dd></div>
+        <div><dt>Owner</dt><dd className="address-value" title={ticket.owner}>{shortAddress(ticket.owner)}</dd></div>
         <div><dt>Max resale</dt><dd>{formatEth(ticket.maxResalePrice)}</dd></div>
         {ticket.listed ? <div><dt>Listed at</dt><dd>{formatEth(ticket.resalePrice)}</dd></div> : null}
       </dl>

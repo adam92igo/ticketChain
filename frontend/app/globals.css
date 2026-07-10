@@ -729,6 +729,13 @@ dd {
   font-weight: 800;
 }
 
+dd.address-value {
+  overflow: hidden;
+  overflow-wrap: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .organizer-layout,
 .ticket-actions-layout,
 .marketplace-layout,
@@ -927,7 +934,7 @@ dd {
 
 .gate-display,
 .verify-result-card {
-  min-height: 380px;
+  min-height: 340px;
 }
 
 .gate-result,
@@ -974,8 +981,39 @@ dd {
   margin-bottom: 8px;
 }
 
+.result-summary-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0 7px;
+}
+
+.result-token-badge {
+  flex: 0 0 auto;
+}
+
+.result-concert {
+  min-width: 0;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.result-venue {
+  margin: 0 0 14px;
+  color: var(--muted);
+}
+
+.result-metadata-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+  margin: 14px 0 17px;
+}
+
 .verify-hero {
-  min-height: 390px;
+  min-height: 295px;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -1309,7 +1347,7 @@ dd {
   }
 
   .verify-hero {
-    min-height: 390px;
+    min-height: 310px;
     align-items: flex-start;
     flex-direction: column;
     justify-content: flex-end;
@@ -1326,6 +1364,15 @@ dd {
   .gate-result,
   .scan-result {
     flex-direction: column;
+  }
+
+  .gate-display,
+  .verify-result-card {
+    min-height: 0;
+  }
+
+  .result-metadata-grid {
+    grid-template-columns: 1fr;
   }
 
   .guide-grid .full-span {
