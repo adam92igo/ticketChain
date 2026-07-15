@@ -4,6 +4,8 @@ export const SEPOLIA_HEX_CHAIN_ID = "0xaa36a7";
 
 export const navigationItems = [
   { href: "/", label: "Home" },
+  { href: "/admin", label: "Admin Panel" },
+  { href: "/client", label: "Client Panel" },
   { href: "/concerts", label: "Concerts" },
   { href: "/tickets", label: "My Tickets" },
   { href: "/marketplace", label: "Marketplace" },

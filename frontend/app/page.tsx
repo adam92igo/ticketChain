@@ -15,11 +15,11 @@ export default function HomePage() {
             A focused Sepolia demo where every ticket is a unique NFT, ownership is public, resale is capped and entry can happen only once.
           </p>
           <div className="hero-actions">
-            <Link className="primary-button button-link" href="/concerts">
-              Launch Demo <ArrowRight size={18} />
+            <Link className="primary-button button-link" href="/admin">
+              Open Admin Panel <ArrowRight size={18} />
             </Link>
-            <Link className="secondary-button button-link" href="/verify">
-              <ScanLine size={18} /> Verify a Ticket
+            <Link className="secondary-button button-link" href="/client">
+              <ScanLine size={18} /> Open Client Panel
             </Link>
           </div>
         </div>
