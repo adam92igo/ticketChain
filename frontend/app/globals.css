@@ -1232,6 +1232,42 @@ dd.address-value {
   flex-wrap: wrap;
 }
 
+.ownership-proof {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 17px;
+  border: 1px solid rgba(16, 19, 31, 0.14);
+  border-radius: 11px;
+  padding: 13px;
+  background: #f4f5f6;
+}
+
+.ownership-proof.confirmed {
+  border-color: rgba(15, 118, 110, 0.35);
+  background: var(--teal-soft);
+}
+
+.ownership-proof.unconfirmed {
+  border-color: rgba(192, 128, 39, 0.35);
+  background: var(--amber-soft);
+}
+
+.ownership-proof > svg {
+  color: var(--teal);
+}
+
+.ownership-proof .eyebrow {
+  margin-bottom: 3px;
+}
+
+.ownership-proof p:last-child {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .scan-result.idle {
   align-items: center;
   background: #f4f5f6;
@@ -1545,6 +1581,14 @@ dd.address-value {
 
   .result-metadata-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ownership-proof {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .ownership-proof .secondary-button {
+    grid-column: 1 / -1;
   }
 
   .guide-grid .full-span {
