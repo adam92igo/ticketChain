@@ -2,23 +2,25 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, ExternalLink, RefreshCw, ShieldCheck, Ticket } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ExternalLink, RefreshCw, ShieldCheck, Ticket, Wallet } from "lucide-react";
 import { FormInput } from "@/components/FormInput";
 import { StatusBadge } from "@/components/StatusBadge";
 import { CONTRACT_ADDRESS } from "@/config/app";
 import { useTicketChain } from "@/context/TicketChainContext";
 import { getFriendlyError } from "@/lib/errors";
 import { formatEth, sepoliaAddressUrl, sepoliaNftUrl, shortAddress } from "@/lib/format";
+import { isTicketOwner } from "@/lib/ownership";
 import { getGateDecision } from "@/lib/ticketState";
 import type { Verification } from "@/lib/ticketchainTypes";
 
 export default function VerifyTicketClient({ initialTokenId }: { initialTokenId: string }) {
-  const { chainId, isSepolia, contractReady, verifyTicket, switchToSepolia } = useTicketChain();
+  const { address, chainId, connectWallet, isSepolia, contractReady, verifyTicket, switchToSepolia } = useTicketChain();
   const [tokenId, setTokenId] = useState(initialTokenId);
   const [result, setResult] = useState<Verification | null>(null);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const decision = useMemo(() => result ? getGateDecision(result) : null, [result]);
+  const ownerConfirmed = Boolean(result?.exists) && isTicketOwner(address, result?.owner || "");
 
   const verifyFromWallet = useCallback(async () => {
     setError("");
@@ -96,6 +98,15 @@ export default function VerifyTicketClient({ initialTokenId }: { initialTokenId:
                       <div><dt>Max resale</dt><dd>{formatEth(result.maxResalePrice)}</dd></div>
                       {result.listed ? <div><dt>Listed price</dt><dd>{formatEth(result.resalePrice)}</dd></div> : null}
                     </dl>
+                    <div className={`ownership-proof ${ownerConfirmed ? "confirmed" : "unconfirmed"}`}>
+                      <Wallet size={20} />
+                      <div>
+                        <p className="eyebrow">Holder wallet proof</p>
+                        <strong>{address ? ownerConfirmed ? "Wallet ownership confirmed" : "This wallet does not own this NFT" : "Connect the holder wallet to compare ownership"}</strong>
+                        <p>Public QR validation remains readable without connecting. Connecting compares the current MetaMask address to the owner read from Sepolia.</p>
+                      </div>
+                      {!address ? <button className="secondary-button" onClick={() => void connectWallet()}>Connect holder wallet</button> : null}
+                    </div>
                     <a className="inline-link" href={sepoliaNftUrl(CONTRACT_ADDRESS, result.tokenId)} target="_blank" rel="noreferrer">
                       View NFT on Sepolia <ExternalLink size={13} />
                     </a>

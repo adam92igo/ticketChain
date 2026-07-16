@@ -150,6 +150,28 @@ p {
   box-shadow: 3px 3px 0 var(--ink);
 }
 
+.profile-switcher {
+  display: inline-grid;
+  grid-template-columns: repeat(2, auto);
+  overflow: hidden;
+  border: 1px solid rgba(16, 19, 31, 0.16);
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+
+.profile-switcher a {
+  padding: 8px 11px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.profile-switcher a.active {
+  background: var(--ink);
+  color: #fffdf8;
+}
+
 .wallet-status,
 .section-heading,
 .ticket-card-topline,
@@ -221,6 +243,21 @@ p {
 
 .menu-button {
   display: none;
+}
+
+@media (max-width: 720px) {
+  .header-primary {
+    flex-wrap: wrap;
+  }
+
+  .profile-switcher {
+    order: 3;
+    width: 100%;
+  }
+
+  .profile-switcher a {
+    text-align: center;
+  }
 }
 
 .address-pill,
@@ -771,6 +808,114 @@ dd.address-value {
   margin-top: 16px;
 }
 
+.organizer-layout {
+  grid-template-columns: minmax(240px, 0.65fr) minmax(0, 1.7fr);
+  align-items: start;
+}
+
+.organizer-content {
+  min-width: 0;
+}
+
+.organizer-forms {
+  margin-top: 16px;
+}
+
+.organizer-concert-list {
+  display: grid;
+  gap: 9px;
+}
+
+.organizer-concert-option {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  background: var(--panel-strong);
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.organizer-concert-option:hover,
+.organizer-concert-option.active {
+  border-color: var(--ink);
+  background: var(--teal-soft);
+  color: var(--ink);
+}
+
+.organizer-concert-option strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.organizer-concert-option span,
+.organizer-concert-option small {
+  font-size: 12px;
+}
+
+.organizer-concert-option small {
+  color: var(--violet);
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 900;
+}
+
+.organizer-concert-summary {
+  margin-top: 0;
+}
+
+.organizer-ticket-table {
+  overflow-x: auto;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--panel-strong);
+}
+
+.organizer-ticket-table table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+}
+
+.organizer-ticket-table th,
+.organizer-ticket-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.organizer-ticket-table th {
+  color: var(--muted);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.organizer-ticket-table td {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.organizer-ticket-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.organizer-ticket-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.organizer-ticket-actions .inline-link {
+  margin-top: 0;
+  white-space: nowrap;
+}
+
 .workspace > p {
   margin-bottom: 18px;
 }
@@ -1087,6 +1232,42 @@ dd.address-value {
   flex-wrap: wrap;
 }
 
+.ownership-proof {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 17px;
+  border: 1px solid rgba(16, 19, 31, 0.14);
+  border-radius: 11px;
+  padding: 13px;
+  background: #f4f5f6;
+}
+
+.ownership-proof.confirmed {
+  border-color: rgba(15, 118, 110, 0.35);
+  background: var(--teal-soft);
+}
+
+.ownership-proof.unconfirmed {
+  border-color: rgba(192, 128, 39, 0.35);
+  background: var(--amber-soft);
+}
+
+.ownership-proof > svg {
+  color: var(--teal);
+}
+
+.ownership-proof .eyebrow {
+  margin-bottom: 3px;
+}
+
+.ownership-proof p:last-child {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .scan-result.idle {
   align-items: center;
   background: #f4f5f6;
@@ -1260,7 +1441,6 @@ dd.address-value {
 
   .home-story-grid,
   .about-grid,
-  .organizer-layout,
   .ticket-actions-layout,
   .marketplace-layout,
   .gate-console,
@@ -1283,6 +1463,12 @@ dd.address-value {
 
   .about-lifecycle {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .organizer-layout {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1395,6 +1581,14 @@ dd.address-value {
 
   .result-metadata-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ownership-proof {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .ownership-proof .secondary-button {
+    grid-column: 1 / -1;
   }
 
   .guide-grid .full-span {
