@@ -30,7 +30,7 @@ export function OrganizerTicketTable({ tickets }: { tickets: Verification[] }) {
                 <td>#{ticket.tokenId.toString()}</td>
                 <td><StatusBadge label={status.label} tone={status.tone} /></td>
                 <td title={ticket.owner}>{shortAddress(ticket.owner)}</td>
-                <td>{formatEth(ticket.resalePrice)}</td>
+                <td>{ticket.listed ? formatEth(ticket.resalePrice) : "Not listed"}</td>
                 <td className="organizer-ticket-actions">
                   <Link className="inline-link" href={"/verify?tokenId=" + ticket.tokenId.toString()}>Verify</Link>
                   <Link className="inline-link" href={"/gate?tokenId=" + ticket.tokenId.toString()}>Gate Check</Link>
