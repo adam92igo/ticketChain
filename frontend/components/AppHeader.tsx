@@ -4,12 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, Ticket, X } from "lucide-react";
+import { ProfileSwitcher } from "@/components/ProfileSwitcher";
 import { WalletStatus } from "@/components/WalletStatus";
-import { navigationItems } from "@/config/app";
+import { clientNavigationItems, organizerNavigationItems } from "@/config/app";
 
 export function AppHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const organizerActive = pathname.startsWith("/organizer") || pathname.startsWith("/gate");
+  const navigationItems = organizerActive ? organizerNavigationItems : clientNavigationItems;
 
   useEffect(() => setMenuOpen(false), [pathname]);
 
@@ -20,6 +23,7 @@ export function AppHeader() {
           <span className="brand-mark"><Ticket size={20} /></span>
           <span>TicketChain</span>
         </Link>
+        <ProfileSwitcher />
         <WalletStatus />
         <button
           className="menu-button"
@@ -33,7 +37,7 @@ export function AppHeader() {
       </div>
       <nav id="primary-navigation" className={`primary-nav ${menuOpen ? "open" : ""}`} aria-label="Primary navigation">
         {navigationItems.map((item) => {
-          const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const active = pathname.startsWith(item.href);
           return (
             <Link href={item.href} key={item.href} className={active ? "active" : ""} aria-current={active ? "page" : undefined}>
               {item.label}

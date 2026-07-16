@@ -150,6 +150,28 @@ p {
   box-shadow: 3px 3px 0 var(--ink);
 }
 
+.profile-switcher {
+  display: inline-grid;
+  grid-template-columns: repeat(2, auto);
+  overflow: hidden;
+  border: 1px solid rgba(16, 19, 31, 0.16);
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+
+.profile-switcher a {
+  padding: 8px 11px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.profile-switcher a.active {
+  background: var(--ink);
+  color: #fffdf8;
+}
+
 .wallet-status,
 .section-heading,
 .ticket-card-topline,
@@ -221,6 +243,21 @@ p {
 
 .menu-button {
   display: none;
+}
+
+@media (max-width: 720px) {
+  .header-primary {
+    flex-wrap: wrap;
+  }
+
+  .profile-switcher {
+    order: 3;
+    width: 100%;
+  }
+
+  .profile-switcher a {
+    text-align: center;
+  }
 }
 
 .address-pill,
