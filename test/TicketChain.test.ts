@@ -173,6 +173,16 @@ describe("TicketChain", function () {
     );
   });
 
+  it("rejects inherited ERC-721 transfers for used tickets", async function () {
+    const { ticketChain, buyer, outsider } = await networkHelpers.loadFixture(deployTicketChainFixture);
+    await ticketChain.mintTicket(1, buyer.address);
+    await ticketChain.markAsUsed(1);
+
+    await expect(ticketChain.connect(buyer).transferFrom(buyer.address, outsider.address, 1)).to.be.revertedWith(
+      "Ticket already used"
+    );
+  });
+
   it("lets a holder resell a ticket below the maximum resale price", async function () {
     const { ticketChain, buyer, secondBuyer } = await networkHelpers.loadFixture(deployTicketChainFixture);
     await ticketChain.connect(buyer).buyTicket(1, { value: concertInput.originalPrice });

@@ -285,6 +285,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
     {
         if (_ownerOf(tokenId) != address(0)) {
             require(_concerts[_tickets[tokenId].concertId].active, "Concert inactive");
+            require(!_tickets[tokenId].used, "Ticket already used");
         }
 
         return super._update(to, tokenId, auth);
