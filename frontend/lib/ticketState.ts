@@ -8,25 +8,28 @@ export function normalizeTokenId(value: string) {
   return normalized;
 }
 
-export function getTicketStatus(ticket: { used: boolean; listed: boolean }): {
-  label: "Valid" | "Used" | "For Sale";
+export function getTicketStatus(ticket: { concertActive: boolean; used: boolean; listed: boolean }): {
+  label: "Expired" | "Valid" | "Used" | "For Sale";
   tone: StatusTone;
 } {
+  if (!ticket.concertActive) return { label: "Expired", tone: "red" };
   if (ticket.used) return { label: "Used", tone: "red" };
   if (ticket.listed) return { label: "For Sale", tone: "amber" };
   return { label: "Valid", tone: "green" };
 }
 
-export type MarketplaceState = "invalid" | "used" | "not-listed" | "owned" | "available";
+export type MarketplaceState = "invalid" | "cancelled" | "used" | "not-listed" | "owned" | "available";
 
 export function getMarketplaceState(ticket: {
   exists: boolean;
+  concertActive: boolean;
   used: boolean;
   listed: boolean;
   owner: string;
   viewer: string;
 }): MarketplaceState {
   if (!ticket.exists) return "invalid";
+  if (!ticket.concertActive) return "cancelled";
   if (ticket.used) return "used";
   if (!ticket.listed) return "not-listed";
   if (ticket.viewer && ticket.owner.toLowerCase() === ticket.viewer.toLowerCase()) return "owned";
@@ -34,18 +37,26 @@ export function getMarketplaceState(ticket: {
 }
 
 export type GateDecision = {
-  title: "Valid ticket" | "Already used" | "Invalid ticket";
+  title: "Valid ticket" | "Already used" | "Concert cancelled" | "Invalid ticket";
   decision: "Entry approved" | "Entry denied";
   message: string;
   tone: "approved" | "denied";
 };
 
-export function getGateDecision(ticket: { exists: boolean; used: boolean; valid: boolean }): GateDecision {
+export function getGateDecision(ticket: { exists: boolean; concertActive: boolean; used: boolean; valid: boolean }): GateDecision {
   if (!ticket.exists) {
     return {
       title: "Invalid ticket",
       decision: "Entry denied",
       message: "This token does not exist on the TicketChain contract.",
+      tone: "denied"
+    };
+  }
+  if (!ticket.concertActive) {
+    return {
+      title: "Concert cancelled",
+      decision: "Entry denied",
+      message: "This concert has been cancelled and this ticket has expired.",
       tone: "denied"
     };
   }

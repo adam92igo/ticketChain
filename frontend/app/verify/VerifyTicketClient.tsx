@@ -10,7 +10,7 @@ import { useTicketChain } from "@/context/TicketChainContext";
 import { getFriendlyError } from "@/lib/errors";
 import { formatEth, sepoliaAddressUrl, sepoliaNftUrl, shortAddress } from "@/lib/format";
 import { isTicketOwner } from "@/lib/ownership";
-import { getGateDecision } from "@/lib/ticketState";
+import { getGateDecision, getTicketStatus } from "@/lib/ticketState";
 import type { Verification } from "@/lib/ticketchainTypes";
 
 export default function VerifyTicketClient({ initialTokenId }: { initialTokenId: string }) {
@@ -20,6 +20,7 @@ export default function VerifyTicketClient({ initialTokenId }: { initialTokenId:
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const decision = useMemo(() => result ? getGateDecision(result) : null, [result]);
+  const ticketStatus = useMemo(() => result?.exists ? getTicketStatus(result) : null, [result]);
   const ownerConfirmed = Boolean(result?.exists) && isTicketOwner(address, result?.owner || "");
 
   const verifyFromWallet = useCallback(async () => {
@@ -93,7 +94,7 @@ export default function VerifyTicketClient({ initialTokenId }: { initialTokenId:
                     <p className="result-venue">{result.location} · {result.date}</p>
                     <dl className="ticket-details result-metadata-grid">
                       <div><dt>Owner</dt><dd className="address-value" title={result.owner}>{shortAddress(result.owner)}</dd></div>
-                      <div><dt>Status</dt><dd>{result.used ? "Used" : result.listed ? "For Sale" : "Valid"}</dd></div>
+                      <div><dt>Status</dt><dd>{ticketStatus?.label}</dd></div>
                       <div><dt>Blockchain</dt><dd>Ethereum Sepolia</dd></div>
                       <div><dt>Max resale</dt><dd>{formatEth(result.maxResalePrice)}</dd></div>
                       {result.listed ? <div><dt>Listed price</dt><dd>{formatEth(result.resalePrice)}</dd></div> : null}

@@ -19,6 +19,7 @@ export type OwnedTicket = {
   location: string;
   date: string;
   owner: string;
+  concertActive: boolean;
   used: boolean;
   maxResalePrice: bigint;
   listed: boolean;

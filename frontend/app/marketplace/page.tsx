@@ -16,6 +16,7 @@ import type { Verification } from "@/lib/ticketchainTypes";
 
 const marketplaceCopy = {
   invalid: ["Invalid ticket", "This token does not exist on the TicketChain contract."],
+  cancelled: ["Concert cancelled", "This concert has been cancelled, so this ticket has expired and cannot be resold."],
   used: ["Already used", "Used tickets cannot be resold."],
   "not-listed": ["Not listed", "This ticket exists, but its owner has not listed it for resale."],
   owned: ["Your listing", "This ticket is listed by the connected wallet. Switch to the buyer wallet to purchase it."],
