@@ -15,7 +15,7 @@ export function OrganizerTicketTable({ tickets }: { tickets: Verification[] }) {
       <table>
         <thead>
           <tr>
-            <th>Token</th>
+            <th>Issued ticket</th>
             <th>Status</th>
             <th>Owner</th>
             <th>Resale price</th>
@@ -27,7 +27,10 @@ export function OrganizerTicketTable({ tickets }: { tickets: Verification[] }) {
             const status = getTicketStatus(ticket);
             return (
               <tr key={ticket.tokenId.toString()}>
-                <td>#{ticket.tokenId.toString()}</td>
+                <td>
+                  <div className="organizer-readable-id">{ticket.concertName} · Bill #{ticket.tokenId.toString()}</div>
+                  <small className="technical-reference">Token ID: {ticket.tokenId.toString()}</small>
+                </td>
                 <td><StatusBadge label={status.label} tone={status.tone} /></td>
                 <td title={ticket.owner}>{shortAddress(ticket.owner)}</td>
                 <td>{ticket.listed ? formatEth(ticket.resalePrice) : "Not listed"}</td>

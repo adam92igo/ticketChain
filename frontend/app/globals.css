@@ -860,6 +860,11 @@ dd.address-value {
   font-weight: 900;
 }
 
+.organizer-concert-cancelled {
+  color: var(--coral);
+  font-weight: 900;
+}
+
 .organizer-concert-summary {
   margin-top: 0;
 }
@@ -914,6 +919,33 @@ dd.address-value {
 .organizer-ticket-actions .inline-link {
   margin-top: 0;
   white-space: nowrap;
+}
+
+.organizer-readable-id {
+  min-width: 220px;
+  white-space: normal;
+}
+
+.technical-reference,
+.selected-concert-reference span {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.selected-concert-reference {
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: var(--teal-soft);
+}
+
+.organizer-cancelled-notice {
+  margin-top: 16px;
 }
 
 .workspace > p {
