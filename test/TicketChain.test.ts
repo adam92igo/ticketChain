@@ -110,6 +110,59 @@ describe("TicketChain", function () {
     await expect(ticketChain.getConcertTicketIds(999)).to.be.revertedWith("Concert does not exist");
   });
 
+  it("cancels a concert while preserving history and isolating other concerts", async function () {
+    const { ticketChain, buyer, secondBuyer, outsider } = await networkHelpers.loadFixture(deployTicketChainFixture);
+    const resalePrice = ethers.parseEther("0.04");
+
+    await ticketChain.createConcert(
+      "Afterparty",
+      "Madrid Arena",
+      "2026-08-16",
+      ethers.parseEther("0.01"),
+      ethers.parseEther("0.02"),
+      3
+    );
+    await ticketChain.connect(buyer).buyTicket(1, { value: concertInput.originalPrice });
+    await ticketChain.mintTicket(1, secondBuyer.address);
+    await ticketChain.mintTicket(2, outsider.address);
+    await ticketChain.connect(buyer).listTicket(1, resalePrice);
+
+    await expect(ticketChain.connect(outsider).cancelConcert(1))
+      .to.be.revertedWithCustomError(ticketChain, "OwnableUnauthorizedAccount")
+      .withArgs(outsider.address);
+    await expect(ticketChain.cancelConcert(1)).to.emit(ticketChain, "ConcertCancelled").withArgs(1n);
+
+    const cancelledConcert = await ticketChain.getConcert(1);
+    expect(cancelledConcert.active).to.equal(false);
+    expect(await ticketChain.getConcertTicketIds(1)).to.deep.equal([1n, 2n]);
+    await expect(ticketChain.getConcert(999)).to.be.revertedWith("Concert does not exist");
+    await expect(ticketChain.getConcertTicketIds(999)).to.be.revertedWith("Concert does not exist");
+
+    const cancelledVerification = await ticketChain.verifyTicket(1);
+    expect(cancelledVerification.exists).to.equal(true);
+    expect(cancelledVerification.concertActive).to.equal(false);
+    expect(cancelledVerification.valid).to.equal(false);
+
+    const activeVerification = await ticketChain.verifyTicket(3);
+    expect(activeVerification.concertActive).to.equal(true);
+    expect(activeVerification.valid).to.equal(true);
+
+    await expect(ticketChain.mintTicket(1, outsider.address)).to.be.revertedWith("Concert inactive");
+    await expect(ticketChain.connect(outsider).buyTicket(1, { value: concertInput.originalPrice })).to.be.revertedWith(
+      "Concert inactive"
+    );
+    await expect(ticketChain.connect(buyer).listTicket(1, resalePrice)).to.be.revertedWith("Concert inactive");
+    await expect(ticketChain.connect(outsider).buyResaleTicket(1, { value: resalePrice })).to.be.revertedWith(
+      "Concert inactive"
+    );
+    await expect(ticketChain.connect(buyer).transferTicket(outsider.address, 1, 0)).to.be.revertedWith("Concert inactive");
+    await expect(ticketChain.markAsUsed(1)).to.be.revertedWith("Concert inactive");
+
+    await ticketChain.connect(outsider).listTicket(3, ethers.parseEther("0.015"));
+    await ticketChain.connect(buyer).buyResaleTicket(3, { value: ethers.parseEther("0.015") });
+    expect(await ticketChain.ownerOf(3)).to.equal(buyer.address);
+  });
+
   it("lets a holder resell a ticket below the maximum resale price", async function () {
     const { ticketChain, buyer, secondBuyer } = await networkHelpers.loadFixture(deployTicketChainFixture);
     await ticketChain.connect(buyer).buyTicket(1, { value: concertInput.originalPrice });

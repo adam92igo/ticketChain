@@ -36,6 +36,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
         string date;
         address owner;
         bool used;
+        bool concertActive;
         uint256 maxResalePrice;
         bool listed;
         uint256 resalePrice;
@@ -49,6 +50,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
     mapping(uint256 => uint256[]) private _concertTicketIds;
 
     event ConcertCreated(uint256 indexed concertId, string name, uint256 totalSupply);
+    event ConcertCancelled(uint256 indexed concertId);
     event TicketMinted(uint256 indexed tokenId, uint256 indexed concertId, address indexed owner);
     event TicketListed(uint256 indexed tokenId, address indexed seller, uint256 price);
     event TicketResold(uint256 indexed tokenId, address indexed seller, address indexed buyer, uint256 price);
@@ -86,11 +88,22 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
         emit ConcertCreated(concertId, name, totalSupply);
     }
 
+    function cancelConcert(uint256 concertId) external onlyOwner {
+        require(_concertExists(concertId), "Concert does not exist");
+
+        Concert storage concert = _concerts[concertId];
+        require(concert.active, "Concert inactive");
+        concert.active = false;
+
+        emit ConcertCancelled(concertId);
+    }
+
     function mintTicket(uint256 concertId, address to) external onlyOwner returns (uint256 tokenId) {
         tokenId = _mintTicket(concertId, to);
     }
 
     function buyTicket(uint256 concertId) external payable nonReentrant returns (uint256 tokenId) {
+        require(_concertExists(concertId), "Concert does not exist");
         Concert storage concert = _concerts[concertId];
         require(concert.active, "Concert inactive");
         require(msg.value == concert.originalPrice, "Incorrect ticket price");
@@ -103,6 +116,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
         require(ownerOf(tokenId) == msg.sender, "Not ticket owner");
 
         Ticket storage ticket = _tickets[tokenId];
+        require(_concerts[ticket.concertId].active, "Concert inactive");
         require(!ticket.used, "Ticket already used");
         require(price > 0, "Price required");
         require(price <= ticket.maxResalePrice, "Price exceeds max resale");
@@ -117,6 +131,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
         require(_ticketExists(tokenId), "Ticket does not exist");
 
         Ticket storage ticket = _tickets[tokenId];
+        require(_concerts[ticket.concertId].active, "Concert inactive");
         address seller = ownerOf(tokenId);
 
         require(ticket.listed, "Ticket not listed");
@@ -142,6 +157,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
         require(ownerOf(tokenId) == msg.sender, "Not ticket owner");
 
         Ticket storage ticket = _tickets[tokenId];
+        require(_concerts[ticket.concertId].active, "Concert inactive");
         require(!ticket.used, "Ticket already used");
         require(declaredPrice <= ticket.maxResalePrice, "Price exceeds max resale");
 
@@ -156,6 +172,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
         require(_ticketExists(tokenId), "Ticket does not exist");
 
         Ticket storage ticket = _tickets[tokenId];
+        require(_concerts[ticket.concertId].active, "Concert inactive");
         require(!ticket.used, "Ticket already used");
 
         ticket.used = true;
@@ -175,7 +192,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
 
         return TicketVerification({
             exists: true,
-            valid: !ticket.used,
+            valid: concert.active && !ticket.used,
             tokenId: tokenId,
             concertId: ticket.concertId,
             concertName: concert.name,
@@ -183,6 +200,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
             date: concert.date,
             owner: ownerOf(tokenId),
             used: ticket.used,
+            concertActive: concert.active,
             maxResalePrice: ticket.maxResalePrice,
             listed: ticket.listed,
             resalePrice: ticket.resalePrice
@@ -190,7 +208,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
     }
 
     function getConcert(uint256 concertId) external view returns (Concert memory) {
-        require(_concerts[concertId].active, "Concert does not exist");
+        require(_concertExists(concertId), "Concert does not exist");
         return _concerts[concertId];
     }
 
@@ -200,7 +218,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
     }
 
     function getConcertTicketIds(uint256 concertId) external view returns (uint256[] memory) {
-        require(_concerts[concertId].active, "Concert does not exist");
+        require(_concertExists(concertId), "Concert does not exist");
         return _concertTicketIds[concertId];
     }
 
@@ -229,6 +247,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
 
     function _mintTicket(uint256 concertId, address to) private returns (uint256 tokenId) {
         require(to != address(0), "Invalid recipient");
+        require(_concertExists(concertId), "Concert does not exist");
 
         Concert storage concert = _concerts[concertId];
         require(concert.active, "Concert inactive");
@@ -253,6 +272,10 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
 
     function _ticketExists(uint256 tokenId) private view returns (bool) {
         return _ownerOf(tokenId) != address(0);
+    }
+
+    function _concertExists(uint256 concertId) private view returns (bool) {
+        return concertId > 0 && concertId < _nextConcertId;
     }
 
     function _update(address to, uint256 tokenId, address auth)
