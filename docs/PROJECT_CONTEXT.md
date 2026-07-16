@@ -6,7 +6,7 @@ TicketChain demonstrates how a shared on-chain ticket record can reduce forgery,
 
 Each concert ticket is an ERC-721 NFT. Its contract state connects the ticket to a concert, current owner, maximum resale price, listing state, and one-time usage state. The frontend turns those rules into a presentation-ready flow on Ethereum Sepolia.
 
-The intended two-profile demo story, pending a new compatible Sepolia deployment and manual MetaMask validation, is:
+The intended two-profile demo story uses the compatible Sepolia deployment at `0x3f311ab156d94233B71Bb40E93Cea4dFc269BF3b`; manual MetaMask validation is still pending:
 
 1. The organizer profile creates a concert and selects it in `/organizer`.
 2. A client receives tickets through a manual mint or primary purchase; the organizer view reads the issued-ticket rows for that concert.
@@ -61,9 +61,9 @@ Contract: 0xd4aFD3b8D2290412Bf4521eC462aEB7Fc0D20149
 Etherscan: https://sepolia.etherscan.io/address/0xd4aFD3b8D2290412Bf4521eC462aEB7Fc0D20149
 ~~~
 
-The address is public. It is a legacy historical deployment, not the current compatible deployment for this revision: it lacks `getConcertTicketIds`, which the organizer-issued-ticket portal requires. The deployment private key is secret and is not stored in documentation.
+The address is public. It is a **legacy historical deployment**, not the current compatible deployment for this revision: it lacks `getConcertTicketIds`, which the organizer-issued-ticket portal requires. The current compatible public Sepolia deployment is `0x3f311ab156d94233B71Bb40E93Cea4dFc269BF3b`. The deployment private key is secret and is not stored in documentation.
 
-Owner-only actions depend on the wallet that deployed this legacy address. The earlier manual validation applies only to its legacy holder, buyer, resale, gate, and QR flows. A new compatible Sepolia deployment is required for the organizer-issued-ticket portal, and the revised demo remains pending deployment and manual MetaMask validation.
+Owner-only actions depend on the wallet that deployed this legacy address. The earlier manual validation applies only to its legacy holder, buyer, resale, gate, and QR flows. The compatible public Sepolia deployment is available for the organizer-issued-ticket portal, and the revised demo still requires manual MetaMask validation.
 
 ## 5. Frontend Architecture
 
@@ -161,7 +161,7 @@ The contract and ABI should normally have no diff:
 git diff -- contracts/TicketChain.sol frontend/config/ticketchainAbi.ts
 ~~~
 
-Manual validation for the revised organizer-issued-ticket flow is pending a new compatible Sepolia deployment. After deployment, validate with MetaMask:
+The revised organizer-issued-ticket flow is deployed at `0x3f311ab156d94233B71Bb40E93Cea4dFc269BF3b` and still requires manual MetaMask validation. Validate with MetaMask:
 
 - organizer profile reads a new concert, creates it with the owner wallet, and shows no issued tickets initially;
 - manual mint and client primary purchase both appear as correct issued-ticket rows for the selected concert;
