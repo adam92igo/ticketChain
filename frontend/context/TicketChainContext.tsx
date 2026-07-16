@@ -23,6 +23,7 @@ type TicketChainContextValue = {
   owner: string;
   concerts: Concert[];
   myTickets: OwnedTicket[];
+  getConcertTickets: (concertId: string) => Promise<Verification[]>;
   loading: boolean;
   contractReady: boolean;
   isSepolia: boolean;
@@ -354,6 +355,18 @@ export function TicketChainProvider({ children }: { children: ReactNode }) {
     [getReadContract]
   );
 
+  const getConcertTickets = useCallback(
+    async (concertId: string) => {
+      const normalizedConcertId = normalizeTokenId(concertId);
+      const readContract = await getReadContract();
+      const tokenIds = (await readContract.getConcertTicketIds(BigInt(normalizedConcertId))) as bigint[];
+      return Promise.all(
+        tokenIds.map(async (tokenId) => mapVerification(await readContract.verifyTicket(tokenId)))
+      );
+    },
+    [getReadContract]
+  );
+
   const markAsUsed = useCallback(
     (tokenId: string) =>
       runTransaction("Marking ticket as used", (activeContract) =>
@@ -382,6 +395,7 @@ export function TicketChainProvider({ children }: { children: ReactNode }) {
       owner,
       concerts,
       myTickets,
+      getConcertTickets,
       loading,
       contractReady,
       isSepolia,
@@ -409,6 +423,7 @@ export function TicketChainProvider({ children }: { children: ReactNode }) {
       owner,
       concerts,
       myTickets,
+      getConcertTickets,
       loading,
       contractReady,
       isSepolia,
