@@ -4,11 +4,11 @@ import { PageHeader } from "@/components/PageHeader";
 
 const lifecycle = [
   ["Created", "Organizer defines supply and price rules."],
-  ["Minted", "Each ticket becomes a unique ERC721 NFT."],
+  ["Issued", "After a partner-confirmed sale, the organizer signs the NFT issuance in this MVP."],
   ["Owned", "The current wallet is publicly verifiable."],
-  ["Resold", "The contract enforces the maximum price."],
+  ["Resold", "The selected concert's marketplace shows real listings under the maximum price."],
   ["Checked", "Gate staff verify ownership and usage."],
-  ["Used", "Entry is recorded once and cannot be replayed."]
+  ["Used or expired", "Entry is recorded once, or concert cancellation expires all associated tickets."]
 ] as const;
 
 export default function AboutPage() {
@@ -17,13 +17,13 @@ export default function AboutPage() {
       <PageHeader
         eyebrow="Product case"
         title="About TicketChain"
-        description="A resale-control and ownership-verification feature within ticketing, built to demonstrate where public state and enforceable rules add real value."
+        description="A partner-sale, resale-control and ownership-verification feature within ticketing, built to demonstrate where public state and enforceable rules add real value."
         actions={<Link className="secondary-button button-link" href="/demo">Open Demo Guide <ArrowRight size={16} /></Link>}
       />
 
       <section className="about-grid">
         <article className="story-panel problem-panel"><Ticket size={23} /><p className="eyebrow">Problem</p><h2>Ticket trust breaks after the first sale.</h2><p>Copied files, uncontrolled resale and invisible ownership changes leave buyers and venues guessing at entry.</p></article>
-        <article className="story-panel solution-panel"><CircleCheck size={23} /><p className="eyebrow">Solution</p><h2>Control resale and verify ownership.</h2><p>TicketChain adds capped resale, current-wallet visibility and one-time entry state to an NFT ticket record.</p></article>
+        <article className="story-panel solution-panel"><CircleCheck size={23} /><p className="eyebrow">Solution</p><h2>Issue transparently, control resale and verify ownership.</h2><p>TicketChain turns a partner-confirmed sale into a visible organizer-signed NFT issuance, then adds capped resale, current-wallet visibility and one-time entry state.</p></article>
         <article className="story-panel why-panel"><LockKeyhole size={23} /><p className="eyebrow">Why blockchain?</p><h2>The proof should not depend on TicketChain’s promise.</h2><p>Sepolia provides a shared record that a buyer, seller, organizer, venue and jury can inspect independently.</p></article>
       </section>
 
@@ -39,13 +39,13 @@ export default function AboutPage() {
           <BadgeDollarSign size={23} />
           <p className="eyebrow">Unit economics</p>
           <h2>Simple value exchange</h2>
-          <p>The MVP demonstrates primary-sale collection and seller-paid resale without adding a platform fee. A production model could charge organizers a setup or per-ticket service fee while keeping resale rules transparent.</p>
+          <p>The MVP demonstrates primary-sale collection, an honest partner-sale issuance stand-in, and seller-paid resale without adding a platform fee. A production integration would replace the visible organizer signature with a secured partner webhook after payment confirmation.</p>
         </article>
         <article className="workspace">
           <Users size={23} />
           <p className="eyebrow">Go-to-market</p>
           <h2>Start where trust is visible</h2>
-          <p>Pilot with student events, independent venues and small festivals where organizers can run one gate and explain the ownership benefit directly to attendees.</p>
+          <p>Pilot with student events, independent venues and small festivals where organizers can run one gate, cancel an event transparently, and explain the ownership benefit directly to attendees.</p>
         </article>
       </section>
     </div>
