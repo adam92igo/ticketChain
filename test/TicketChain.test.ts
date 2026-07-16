@@ -163,6 +163,16 @@ describe("TicketChain", function () {
     expect(await ticketChain.ownerOf(3)).to.equal(buyer.address);
   });
 
+  it("rejects inherited ERC-721 transfers for tickets from cancelled concerts", async function () {
+    const { ticketChain, buyer, outsider } = await networkHelpers.loadFixture(deployTicketChainFixture);
+    await ticketChain.mintTicket(1, buyer.address);
+    await ticketChain.cancelConcert(1);
+
+    await expect(ticketChain.connect(buyer).transferFrom(buyer.address, outsider.address, 1)).to.be.revertedWith(
+      "Concert inactive"
+    );
+  });
+
   it("lets a holder resell a ticket below the maximum resale price", async function () {
     const { ticketChain, buyer, secondBuyer } = await networkHelpers.loadFixture(deployTicketChainFixture);
     await ticketChain.connect(buyer).buyTicket(1, { value: concertInput.originalPrice });
