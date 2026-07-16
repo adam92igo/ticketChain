@@ -2,13 +2,13 @@
 
 > Authentic concert tickets, verified on-chain.
 
-TicketChain is a working blockchain ticketing MVP that represents each concert ticket as an ERC-721 NFT. The application demonstrates concert creation, primary ticketing, wallet ownership, capped resale, QR verification, gate control, and one-time usage on Ethereum Sepolia.
+TicketChain is a working blockchain ticketing MVP that represents each concert ticket as an ERC-721 NFT. The application demonstrates client purchase and ownership, capped resale and transfer, public QR verification, organizer inventory review, gate control, and one-time usage on Ethereum Sepolia.
 
-**Status:** functional academic MVP with a manually validated end-to-end Sepolia flow. It was created for the BTS FinTech Summer School and is not production-ready software.
+**Status:** functional academic MVP. Earlier holder, buyer, resale, gate, and QR flows were manually validated on a legacy Sepolia deployment. The revised organizer-issued-ticket portal is deployed on Sepolia at `0x3f311ab156d94233B71Bb40E93Cea4dFc269BF3b`, but its end-to-end MetaMask validation is still pending. It was created for the BTS FinTech Summer School and is not production-ready software.
 
 ## 1. Quick Start
 
-This is the fastest path for a teammate who wants to run the frontend against the existing Sepolia deployment.
+This is the fastest path for a teammate who wants to prepare the frontend for the compatible public Sepolia deployment or a personal compatible deployment.
 
 ~~~bash
 git clone <REPOSITORY_URL>
@@ -21,7 +21,7 @@ cp frontend/.env.example frontend/.env.local
 Set the following public frontend configuration in **frontend/.env.local**:
 
 ~~~env
-NEXT_PUBLIC_CONTRACT_ADDRESS=0xd4aFD3b8D2290412Bf4521eC462aEB7Fc0D20149
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x3f311ab156d94233B71Bb40E93Cea4dFc269BF3b
 NEXT_PUBLIC_CHAIN_ID=11155111
 ~~~
 
@@ -39,25 +39,27 @@ http://localhost:3000
 
 If port 3000 is already in use, open the alternative URL printed by Next.js.
 
-Requirements for the existing deployment:
+Requirements for a compatible deployment:
 
 - Install and unlock MetaMask.
 - Select **Ethereum Sepolia** with chain ID **11155111**.
-- Connected wallets can read the contract and use normal holder or buyer flows.
+- Configure the public compatible Sepolia contract at `0x3f311ab156d94233B71Bb40E93Cea4dFc269BF3b`, or a personal compatible contract that includes `getConcertTicketIds`; the organizer-issued-ticket portal cannot run against the legacy address documented below.
+- Connected wallets can then read the contract and use the documented client and organizer flows.
 - Read-only pages still use MetaMask as the browser provider, even when account connection is not required.
 
-> **Organizer access is restricted.** Creating concerts, minting tickets manually, marking tickets as used, and withdrawing primary-sale funds are controlled by the wallet that deployed the contract. Collaborators who need full organizer access must deploy their own TicketChain contract and configure its address locally.
+> **Organizer writes are restricted.** With a compatible deployment, anyone can open the **Organisateur** profile and `/organizer` to read real concerts and their issued-ticket rows. Creating concerts, minting tickets manually, marking tickets as used, and withdrawing primary-sale funds remain controlled by the wallet that deployed the contract.
 
 ## 2. Project Overview
 
 Traditional ticket files can be copied, forged, sold to several buyers, or presented more than once. Secondary buyers may not know the current owner, whether a ticket has already been used, or whether a resale price respects the organizer's rules.
 
-TicketChain records each ticket as a unique NFT. The smart contract links it to a concert, enforces supply and resale limits, tracks its current owner and listing, and records whether it has been used. The frontend presents those rules as a focused workflow for four roles:
+TicketChain records each ticket as a unique NFT. The smart contract links it to a concert, enforces supply and resale limits, tracks its current owner and listing, and records whether it has been used. The frontend separates that work into client and organizer profiles:
 
-- **Organizer:** creates concerts, sets supply and prices, mints tickets, and records gate usage.
-- **Ticket holder:** views owned tickets, opens QR verification, lists for resale, or transfers ownership.
-- **Resale buyer:** inspects a known token ID and purchases its current on-chain listing.
-- **Gate staff:** checks authenticity and usage status; the contract owner can mark entry as used.
+- **Client:** buys a primary ticket, owns and verifies its NFT, lists it for resale, transfers it, or buys a known listed ticket from another holder.
+- **Organisateur:** opens `/organizer` to read real concerts and the issued tickets for a selected concert. Contract-owner-only controls create concerts and mint tickets; the same owner can record gate usage.
+- **Gate staff:** checks public authenticity and usage status. The contract owner alone can mark entry as used.
+
+Public QR validity and holder-wallet proof are deliberately separate. A QR lookup reads the ticket state and current owner from Sepolia without account connection; connecting MetaMask only compares the connected wallet with that owner. A QR alone does not prove that the person presenting it controls the holder wallet.
 
 TicketChain is an academic MVP running only on Ethereum Sepolia with testnet funds.
 
@@ -91,10 +93,11 @@ Blockchain does not solve every ticketing problem:
 - Connected-wallet ticket collection in My Tickets.
 - NFT status badges, owner, concert details, resale limits, and prices.
 - QR code and copyable **/verify?tokenId=&lt;id&gt;** link for each owned ticket.
-- Direct QR-first ticket verification.
+- Direct QR-first ticket verification plus an optional connected-wallet ownership comparison.
 - Resale listing with an enforced maximum price.
 - Exact-token marketplace inspection and resale purchase.
 - Controlled ticket transfer with a declared-price cap.
+- Read-only `/organizer` concert inventory with issued-ticket rows, current owners, listing status, and gate links.
 - Gate Check with valid, used, and invalid decisions.
 - Owner-only mark-as-used transaction and prevention of ticket reuse.
 - Sepolia Etherscan links for the contract, wallet, NFT, and transaction.
@@ -106,9 +109,10 @@ Blockchain does not solve every ticketing problem:
 | Route | Purpose | Wallet required | Organizer required |
 | --- | --- | --- | --- |
 | **/** | Product landing page | No | No |
-| **/concerts** | Concert inventory, creation, minting, and primary purchase | Account for transactions; MetaMask provider for reads | Yes for create and mint |
+| **/concerts** | Client event inventory and primary purchase | Account for purchase; MetaMask provider for reads | No |
 | **/tickets** | Connected wallet's ticket collection, resale listing, and transfer | Yes | No |
 | **/marketplace** | Exact-token resale inspection and purchase | No account for inspection; account for purchase | No |
+| **/organizer** | Organizer profile: concert inventory and per-concert issued-ticket view | No account for reads; account for writes | Yes for create and mint |
 | **/gate** | Staff verification and mark-as-used | No account for checks; account for write action | Yes for mark-as-used |
 | **/verify?tokenId=&lt;id&gt;** | Direct QR ticket verification | No connected account; MetaMask provider and Sepolia required | No |
 | **/demo** | Jury and test walkthrough | No | No |
@@ -199,7 +203,7 @@ Security rules:
 - Both local environment files are ignored by Git.
 - Restart the frontend after changing **frontend/.env.local**.
 
-## 10. Using the Existing Contract
+## 10. Legacy Historical Sepolia Deployment
 
 ~~~text
 Network: Ethereum Sepolia
@@ -208,11 +212,11 @@ Contract address: 0xd4aFD3b8D2290412Bf4521eC462aEB7Fc0D20149
 Etherscan: https://sepolia.etherscan.io/address/0xd4aFD3b8D2290412Bf4521eC462aEB7Fc0D20149
 ~~~
 
-[Open the current TicketChain contract on Sepolia Etherscan](https://sepolia.etherscan.io/address/0xd4aFD3b8D2290412Bf4521eC462aEB7Fc0D20149).
+[Open the legacy historical TicketChain contract on Sepolia Etherscan](https://sepolia.etherscan.io/address/0xd4aFD3b8D2290412Bf4521eC462aEB7Fc0D20149).
 
-The contract address is public and safe to share. The deployment private key is not public and must never be shared.
+This public address is a **legacy historical deployment**, not the current compatible deployment for this revision. It lacks `getConcertTicketIds`, so it cannot support the organizer-issued-ticket portal. The current compatible public Sepolia deployment is `0x3f311ab156d94233B71Bb40E93Cea4dFc269BF3b`. The deployment private key is not public and must never be shared.
 
-The current contract owner controls concert creation, manual minting, gate usage, and contract withdrawal. Other teammates can still inspect concerts and tickets, purchase tickets, manage tickets they own, and test resale or transfer flows. Deploy a personal contract when organizer permissions are required.
+Its contract owner controls concert creation, manual minting, gate usage, and contract withdrawal. The prior manual validation applies only to the legacy holder, buyer, resale, gate, and QR flows. The current compatible public deployment still requires manual MetaMask validation before it is used for the revised organizer-portal demonstration.
 
 ## 11. Deploying a Personal Contract
 
@@ -272,20 +276,18 @@ There is no separate frontend test script in the current package files. Do not i
 
 Before testing, configure the frontend, select Sepolia, and fund the test accounts.
 
-### A. Organizer Flow
+### A. Organizer Portal and Issuance Flow
 
-Use the wallet that deployed the configured contract:
+This revised flow is deployed at the public compatible Sepolia address `0x3f311ab156d94233B71Bb40E93Cea4dFc269BF3b` and still requires manual MetaMask validation. Configure that address, or complete **Deploying a Personal Contract** and configure its compatible address; do not use the legacy historical address in section 10.
 
-1. Connect MetaMask on Sepolia.
-2. Open **/concerts**.
-3. Create a concert.
-4. Confirm the transaction in MetaMask.
-5. Wait for **Transaction confirmed**.
-6. Record the new concert ID displayed in the concert inventory.
-7. Enter the concert ID and recipient wallet in **Mint to wallet**.
-8. Select **Mint Ticket** and confirm the transaction.
-9. Connect the recipient wallet and open **/tickets**.
-10. Confirm the NFT appears.
+1. Select the **Organisateur** profile and open **/organizer**. The concert inventory and selected concert's issued-ticket rows are readable without connecting an account.
+2. Connect the wallet that deployed the configured contract before attempting an organizer write.
+3. Create a concert and wait for **Transaction confirmed**.
+4. Select the concert in the organizer inventory. It initially shows no issued tickets.
+5. Mint one NFT ticket to a client wallet, then have a client buy one primary ticket from **/concerts**.
+6. Refresh or reselect the concert and confirm that its issued-ticket rows show both token IDs, their current owners, and listing status.
+
+The selected-concert view uses `getConcertTicketIds(concertId)`, a per-concert contract read. It shows tickets issued for that concert regardless of their current owner, but the contract does not record whether a ticket was issued through a primary purchase or a manual mint.
 
 The create form uses:
 
@@ -313,6 +315,7 @@ The mint form uses:
    - the current owner;
    - **Blockchain: Ethereum Sepolia**;
    - **View NFT on Sepolia**.
+5. Explain that this is public ticket validity, not proof that the scanner controls the owner wallet. Connect the holder wallet only when needed; **Holder wallet proof** then compares its MetaMask address to the current on-chain owner.
 
 Additional cases:
 
@@ -496,21 +499,19 @@ Never invent hashes in documentation or demos. Use real hashes from the current 
 
 ## 17. End-to-End Demo Scenario
 
-1. Connect **TicketChain Organizer** on Sepolia.
-2. Create a concert.
-3. Mint a ticket to the attendee/current-owner wallet.
-4. Show the NFT in My Tickets.
-5. Show its **NFT #...** badge and QR code.
-6. Open the direct verification page and show **Valid ticket / Entry approved**.
-7. List the ticket for resale below its maximum price.
-8. Switch and authorize **TicketChain Buyer**.
-9. Inspect the exact token ID in Marketplace and purchase it.
-10. Verify the token and show the new owner.
-11. Switch back to **TicketChain Organizer**.
-12. Check the ticket in Gate Check.
-13. Mark the ticket as used and wait for confirmation.
-14. Verify **Already used / Entry denied**.
-15. Open the transaction or NFT proof on Sepolia Etherscan.
+This revised demo scenario uses the deployed compatible Sepolia contract at `0x3f311ab156d94233B71Bb40E93Cea4dFc269BF3b` and still awaits manual MetaMask validation. The previously manually validated scenario was the legacy flow described in section 10 and did not include the organizer-issued-ticket portal.
+
+1. Select the **Organisateur** profile and create a concert with the contract-owner wallet.
+2. Select that concert in **/organizer** and show its initially empty issued-ticket list.
+3. Mint one ticket to a client wallet, then let a client buy one from **Events**.
+4. Return to the selected organizer concert and show the issued-ticket rows with their real token IDs and owners.
+5. In the **Client** profile, show an owned NFT, its QR code, and the public **/verify?tokenId=&lt;id&gt;** result.
+6. Connect the holder wallet on the verify page to demonstrate the separate holder-wallet proof.
+7. Resell or transfer the ticket, then refresh the organizer view to show the changed current owner and listing status.
+8. Follow the organizer Gate Check link for the token, reject **Mark as Used** once, and confirm the result remains unused.
+9. Approve **Mark as Used** and wait for the confirmed transaction before showing the used state.
+10. Reopen the same QR verification URL and show **Already used / Entry denied**.
+11. Open the relevant transaction or NFT proof on Sepolia Etherscan.
 
 Record a short backup demo video and keep one unused and one used token ID available in case testnet confirmation or wallet connectivity is slow.
 
@@ -554,6 +555,7 @@ Rules:
 - Ethereum Sepolia only.
 - Test ETH only; no real funds.
 - Exact-token marketplace discovery.
+- The organizer's per-concert issued-ticket list cannot distinguish a primary purchase from a manual mint because the contract does not store that issuance source.
 - No backend or contract-event indexer.
 - No IPFS or decentralized NFT metadata.
 - One organizer: the contract owner.

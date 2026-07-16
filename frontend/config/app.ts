@@ -2,15 +2,16 @@ export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
 export const EXPECTED_CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID || "11155111");
 export const SEPOLIA_HEX_CHAIN_ID = "0xaa36a7";
 
-export const navigationItems = [
-  { href: "/", label: "Home" },
-  { href: "/admin", label: "Admin Panel" },
-  { href: "/client", label: "Client Panel" },
-  { href: "/concerts", label: "Concerts" },
+export const clientNavigationItems = [
+  { href: "/concerts", label: "Events" },
   { href: "/tickets", label: "My Tickets" },
-  { href: "/marketplace", label: "Marketplace" },
+  { href: "/marketplace", label: "Resale" },
+  { href: "/verify", label: "Verify" }
+] as const;
+
+export const organizerNavigationItems = [
+  { href: "/organizer", label: "Organizer Portal" },
   { href: "/gate", label: "Gate Check" },
-  { href: "/verify", label: "Verify" },
   { href: "/demo", label: "Demo Guide" },
   { href: "/about", label: "About" }
 ] as const;

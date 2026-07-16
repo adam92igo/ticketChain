@@ -4,18 +4,18 @@ import { DemoStepCard } from "@/components/DemoStepCard";
 import { PageHeader } from "@/components/PageHeader";
 
 const steps = [
-  ["Connect MetaMask", "Use the organizer wallet and confirm Sepolia is selected."],
-  ["Create a concert", "Open Concerts and create the jury demo event."],
-  ["Mint a ticket", "Mint one NFT ticket to the attendee wallet."],
-  ["Open My Tickets", "Switch to the attendee wallet and load its collection."],
-  ["Show the QR code", "Point out the token ID and QR-first verification link."],
-  ["Open verification", "Scan the QR or open /verify?tokenId=<id> directly."],
-  ["Show Valid ticket", "Confirm Entry approved, concert details and current owner."],
-  ["Resell or transfer", "List and buy with the second wallet, or use controlled transfer."],
-  ["Show ownership changed", "Verify the same token ID and compare the owner wallet."],
-  ["Mark as used", "Return to the organizer wallet and use Gate Check."],
-  ["Verify again", "Read the same token after the confirmed gate transaction."],
-  ["Show entry denied", "Point out Already used and Entry denied."],
+  ["Open the organizer profile", "Choose Organisateur and open the read-only Organizer Portal on Sepolia."],
+  ["Create a concert", "Use the contract-owner wallet to create the jury demo event."],
+  ["Select the concert", "Show its empty issued-ticket list, then keep this view open for the ledger."],
+  ["Mint or buy", "Mint one ticket to a client wallet and optionally let the client buy another primary ticket."],
+  ["Show issued tickets", "Refresh the selected concert and point out the real token IDs, current owners, and listing status."],
+  ["Open My Tickets", "Switch to the client wallet and load its owned NFT collection."],
+  ["Show QR and wallet proof", "Open /verify?tokenId=<id>; explain public validity, then connect the holder wallet to compare ownership."],
+  ["Resell or transfer", "List and buy with the second wallet, or use controlled transfer, then refresh the organizer row."],
+  ["Open Gate Check", "Use the organizer row’s Gate Check link so the token ID is preloaded."],
+  ["Reject once", "Reject Mark as Used in MetaMask and show that the ticket still reads as unused."],
+  ["Confirm use", "Approve Mark as Used and wait for the confirmed Sepolia transaction before showing the used state."],
+  ["Verify again", "Reopen the same QR link and show Already used with Entry denied."],
   ["Open Sepolia Etherscan", "Finish with the transaction or NFT public record."]
 ] as const;
 
@@ -35,10 +35,11 @@ export default function DemoPage() {
 
       <section className="guide-grid">
         <article className="workspace">
-          <div className="section-heading"><div><p className="eyebrow">Required wallets</p><h2>Two roles, three moments</h2></div><Wallet size={22} /></div>
+          <div className="section-heading"><div><p className="eyebrow">Required wallets</p><h2>Two profiles, three moments</h2></div><Wallet size={22} /></div>
           <ul className="check-list">
-            <li><strong>Organizer:</strong> deployer/contract-owner wallet for create, mint and gate use.</li>
-            <li><strong>Attendee or buyer:</strong> second wallet for ticket ownership, resale and transfer proof.</li>
+            <li><strong>Organisateur:</strong> the portal is readable without an account; use the deployer/contract-owner wallet for create, mint and gate use.</li>
+            <li><strong>Client:</strong> a second wallet for primary purchase, ticket ownership, resale, transfer and holder-wallet proof.</li>
+            <li>Public QR validation reads ticket state; it does not by itself prove control of the holder wallet.</li>
             <li>Fund both wallets with enough Sepolia ETH before the presentation.</li>
           </ul>
         </article>

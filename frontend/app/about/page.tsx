@@ -17,13 +17,13 @@ export default function AboutPage() {
       <PageHeader
         eyebrow="Product case"
         title="About TicketChain"
-        description="A small but complete Web3 ticketing product built to demonstrate where public ownership and enforceable rules add real value."
+        description="A resale-control and ownership-verification feature within ticketing, built to demonstrate where public state and enforceable rules add real value."
         actions={<Link className="secondary-button button-link" href="/demo">Open Demo Guide <ArrowRight size={16} /></Link>}
       />
 
       <section className="about-grid">
-        <article className="story-panel problem-panel"><Ticket size={23} /><p className="eyebrow">Problem</p><h2>Ticket trust breaks after the first sale.</h2><p>Copied files, duplicate resale and invisible ownership changes leave buyers guessing until they reach the venue.</p></article>
-        <article className="story-panel solution-panel"><CircleCheck size={23} /><p className="eyebrow">Solution</p><h2>Make the ticket state public and enforceable.</h2><p>TicketChain connects authenticity, ownership, resale limits and entry status to one NFT record.</p></article>
+        <article className="story-panel problem-panel"><Ticket size={23} /><p className="eyebrow">Problem</p><h2>Ticket trust breaks after the first sale.</h2><p>Copied files, uncontrolled resale and invisible ownership changes leave buyers and venues guessing at entry.</p></article>
+        <article className="story-panel solution-panel"><CircleCheck size={23} /><p className="eyebrow">Solution</p><h2>Control resale and verify ownership.</h2><p>TicketChain adds capped resale, current-wallet visibility and one-time entry state to an NFT ticket record.</p></article>
         <article className="story-panel why-panel"><LockKeyhole size={23} /><p className="eyebrow">Why blockchain?</p><h2>The proof should not depend on TicketChain’s promise.</h2><p>Sepolia provides a shared record that a buyer, seller, organizer, venue and jury can inspect independently.</p></article>
       </section>
 

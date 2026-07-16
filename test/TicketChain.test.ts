@@ -91,6 +91,25 @@ describe("TicketChain", function () {
     expect(await ticketChain.tokensOfOwner(buyer.address)).to.deep.equal([1n]);
   });
 
+  it("returns only the issued ticket IDs for the requested concert", async function () {
+    const { ticketChain, buyer, secondBuyer } = await networkHelpers.loadFixture(deployTicketChainFixture);
+    await ticketChain.createConcert(
+      "Afterparty",
+      "Madrid Arena",
+      "2026-08-16",
+      ethers.parseEther("0.01"),
+      ethers.parseEther("0.02"),
+      3
+    );
+    await ticketChain.mintTicket(1, buyer.address);
+    await ticketChain.connect(secondBuyer).buyTicket(1, { value: concertInput.originalPrice });
+    await ticketChain.mintTicket(2, buyer.address);
+
+    expect(await ticketChain.getConcertTicketIds(1)).to.deep.equal([1n, 2n]);
+    expect(await ticketChain.getConcertTicketIds(2)).to.deep.equal([3n]);
+    await expect(ticketChain.getConcertTicketIds(999)).to.be.revertedWith("Concert does not exist");
+  });
+
   it("lets a holder resell a ticket below the maximum resale price", async function () {
     const { ticketChain, buyer, secondBuyer } = await networkHelpers.loadFixture(deployTicketChainFixture);
     await ticketChain.connect(buyer).buyTicket(1, { value: concertInput.originalPrice });

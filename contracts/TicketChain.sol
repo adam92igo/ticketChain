@@ -46,6 +46,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
 
     mapping(uint256 => Concert) private _concerts;
     mapping(uint256 => Ticket) private _tickets;
+    mapping(uint256 => uint256[]) private _concertTicketIds;
 
     event ConcertCreated(uint256 indexed concertId, string name, uint256 totalSupply);
     event TicketMinted(uint256 indexed tokenId, uint256 indexed concertId, address indexed owner);
@@ -198,6 +199,11 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
         return _tickets[tokenId];
     }
 
+    function getConcertTicketIds(uint256 concertId) external view returns (uint256[] memory) {
+        require(_concerts[concertId].active, "Concert does not exist");
+        return _concertTicketIds[concertId];
+    }
+
     function totalConcerts() external view returns (uint256) {
         return _nextConcertId - 1;
     }
@@ -238,6 +244,8 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
             listed: false,
             resalePrice: 0
         });
+
+        _concertTicketIds[concertId].push(tokenId);
 
         _safeMint(to, tokenId);
         emit TicketMinted(tokenId, concertId, to);
