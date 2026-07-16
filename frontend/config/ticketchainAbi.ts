@@ -56,6 +56,13 @@ export const ticketChainAbi = [
   },
   {
     type: "function",
+    name: "getConcertTicketIds",
+    stateMutability: "view",
+    inputs: [{ name: "concertId", type: "uint256" }],
+    outputs: [{ name: "", type: "uint256[]" }]
+  },
+  {
+    type: "function",
     name: "tokensOfOwner",
     stateMutability: "view",
     inputs: [{ name: "ownerAddress", type: "address" }],
