@@ -860,6 +860,11 @@ dd.address-value {
   font-weight: 900;
 }
 
+.organizer-concert-cancelled {
+  color: var(--coral);
+  font-weight: 900;
+}
+
 .organizer-concert-summary {
   margin-top: 0;
 }
@@ -916,6 +921,33 @@ dd.address-value {
   white-space: nowrap;
 }
 
+.organizer-readable-id {
+  min-width: 220px;
+  white-space: normal;
+}
+
+.technical-reference,
+.selected-concert-reference span {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.selected-concert-reference {
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: var(--teal-soft);
+}
+
+.organizer-cancelled-notice {
+  margin-top: 16px;
+}
+
 .workspace > p {
   margin-bottom: 18px;
 }
@@ -943,6 +975,17 @@ dd.address-value {
   padding: 10px 12px;
   background: #fffdfa;
   color: var(--ink);
+}
+
+.field select {
+  width: 100%;
+  min-height: 45px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 10px 38px 10px 12px;
+  background: #fffdfa;
+  color: var(--ink);
+  font: inherit;
 }
 
 .field input::placeholder {
@@ -1054,6 +1097,50 @@ dd.address-value {
   color: var(--blue);
   font-size: 13px;
   font-weight: 850;
+}
+
+.ticket-technical-reference {
+  margin-top: 13px;
+  color: var(--muted);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.ticket-technical-reference summary {
+  cursor: pointer;
+  color: var(--blue);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.ticket-technical-reference span {
+  display: block;
+  margin-top: 6px;
+}
+
+.ticket-actions {
+  margin-top: 16px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.ticket-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ticket-action-form {
+  margin-top: 12px;
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--blue-soft);
+}
+
+.ticket-action-form .field:last-of-type {
+  margin-bottom: 12px;
 }
 
 .marketplace-limit {

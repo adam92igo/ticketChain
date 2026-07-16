@@ -1,17 +1,57 @@
-import { MapPin, Ticket } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { ethers } from "ethers";
+import { BadgeDollarSign, MapPin, Send, Ticket } from "lucide-react";
+import { FormInput } from "@/components/FormInput";
 import { QRCodeBlock } from "@/components/QRCodeBlock";
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatEth, shortAddress } from "@/lib/format";
 import { getTicketStatus } from "@/lib/ticketState";
 import type { OwnedTicket } from "@/lib/ticketchainTypes";
 
-export function TicketCard({ ticket }: { ticket: OwnedTicket }) {
+export function TicketCard({
+  ticket,
+  transactionBusy,
+  onList,
+  onTransfer
+}: {
+  ticket: OwnedTicket;
+  transactionBusy: boolean;
+  onList: (tokenId: string, price: string) => Promise<boolean>;
+  onTransfer: (tokenId: string, to: string, declaredPrice: string) => Promise<boolean>;
+}) {
   const status = getTicketStatus(ticket);
+  const [showListing, setShowListing] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
+  const [resalePrice, setResalePrice] = useState(ticket.listed ? ethers.formatEther(ticket.resalePrice) : "");
+  const [recipient, setRecipient] = useState("");
+  const [declaredPrice, setDeclaredPrice] = useState("0");
+  const actionable = ticket.concertActive && !ticket.used;
+
+  const submitListing = async () => {
+    if (await onList(ticket.tokenId.toString(), resalePrice)) setShowListing(false);
+  };
+
+  const submitTransfer = async () => {
+    if (await onTransfer(ticket.tokenId.toString(), recipient, declaredPrice)) setShowTransfer(false);
+  };
+
+  const toggleListing = () => {
+    setShowTransfer(false);
+    setResalePrice(ticket.listed ? ethers.formatEther(ticket.resalePrice) : "");
+    setShowListing((visible) => !visible);
+  };
+
+  const toggleTransfer = () => {
+    setShowListing(false);
+    setShowTransfer((visible) => !visible);
+  };
 
   return (
     <article className="owned-ticket">
       <div className="ticket-card-topline">
-        <span className="ticket-stub"><Ticket size={17} /> NFT #{ticket.tokenId.toString()}</span>
+        <span className="ticket-stub"><Ticket size={17} /> Bill #{ticket.tokenId.toString()}</span>
         <StatusBadge label={status.label} tone={status.tone} />
       </div>
       <h3>{ticket.concertName}</h3>
@@ -22,6 +62,40 @@ export function TicketCard({ ticket }: { ticket: OwnedTicket }) {
         {ticket.listed ? <div><dt>Listed at</dt><dd>{formatEth(ticket.resalePrice)}</dd></div> : null}
       </dl>
       <QRCodeBlock tokenId={ticket.tokenId} />
+      <details className="ticket-technical-reference">
+        <summary>Technical reference</summary>
+        <span>Token ID: {ticket.tokenId.toString()}</span>
+        <span>Concert ID: {ticket.concertId.toString()}</span>
+      </details>
+      {actionable ? (
+        <div className="ticket-actions">
+          <div className="ticket-action-buttons">
+            <button className="secondary-button compact-button" onClick={toggleListing} disabled={transactionBusy}>
+              <BadgeDollarSign size={15} /> {ticket.listed ? "Update resale" : "List for resale"}
+            </button>
+            <button className="secondary-button compact-button" onClick={toggleTransfer} disabled={transactionBusy}>
+              <Send size={15} /> Transfer
+            </button>
+          </div>
+          {showListing ? (
+            <div className="ticket-action-form">
+              <FormInput label="Resale price ETH" value={resalePrice} inputMode="decimal" placeholder="e.g. 0.03" onChange={setResalePrice} />
+              <button className="primary-button full" onClick={() => void submitListing()} disabled={transactionBusy || !resalePrice.trim()}>
+                <BadgeDollarSign size={16} /> {ticket.listed ? "Update Listing" : "List Ticket"}
+              </button>
+            </div>
+          ) : null}
+          {showTransfer ? (
+            <div className="ticket-action-form">
+              <FormInput label="Recipient wallet" value={recipient} placeholder="0x…" onChange={setRecipient} />
+              <FormInput label="Declared price ETH" value={declaredPrice} inputMode="decimal" onChange={setDeclaredPrice} />
+              <button className="primary-button full" onClick={() => void submitTransfer()} disabled={transactionBusy || !recipient.trim() || !declaredPrice.trim()}>
+                <Send size={16} /> Transfer Ticket
+              </button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </article>
   );
 }

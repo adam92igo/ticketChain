@@ -37,6 +37,7 @@ type TicketChainContextValue = {
   switchToSepolia: () => Promise<void>;
   refreshData: () => Promise<void>;
   createConcert: (input: CreateConcertInput) => Promise<boolean>;
+  cancelConcert: (concertId: string) => Promise<boolean>;
   mintTicket: (concertId: string, to: string) => Promise<boolean>;
   buyTicket: (concert: Concert) => Promise<boolean>;
   listTicket: (tokenId: string, price: string) => Promise<boolean>;
@@ -69,6 +70,7 @@ function mapVerification(data: Awaited<ReturnType<Contract["verifyTicket"]>>): V
     location: data.location,
     date: data.date,
     owner: data.owner,
+    concertActive: Boolean(data.concertActive),
     used: Boolean(data.used),
     maxResalePrice: data.maxResalePrice,
     listed: Boolean(data.listed),
@@ -132,6 +134,7 @@ export function TicketChainProvider({ children }: { children: ReactNode }) {
             location: concert.location,
             date: concert.date,
             owner: currentOwner,
+            concertActive: Boolean(concert.active),
             used: Boolean(data.used),
             maxResalePrice: data.maxResalePrice,
             listed: Boolean(data.listed),
@@ -293,6 +296,14 @@ export function TicketChainProvider({ children }: { children: ReactNode }) {
     [runTransaction]
   );
 
+  const cancelConcert = useCallback(
+    (concertId: string) =>
+      runTransaction("Cancelling concert", (activeContract) =>
+        activeContract.cancelConcert(BigInt(normalizeTokenId(concertId)))
+      ),
+    [runTransaction]
+  );
+
   const mintTicket = useCallback(
     (concertId: string, to: string) =>
       runTransaction("Minting ticket", (activeContract) => activeContract.mintTicket(BigInt(concertId), to)),
@@ -409,6 +420,7 @@ export function TicketChainProvider({ children }: { children: ReactNode }) {
       switchToSepolia,
       refreshData,
       createConcert,
+      cancelConcert,
       mintTicket,
       buyTicket,
       listTicket,
@@ -436,6 +448,7 @@ export function TicketChainProvider({ children }: { children: ReactNode }) {
       switchToSepolia,
       refreshData,
       createConcert,
+      cancelConcert,
       mintTicket,
       buyTicket,
       listTicket,

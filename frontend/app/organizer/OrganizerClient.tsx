@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, ShieldCheck, Ticket } from "lucide-react";
+import { Ban, Plus, ShieldCheck, Ticket } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { FormInput } from "@/components/FormInput";
 import { OrganizerConcertSelector } from "@/components/OrganizerConcertSelector";
@@ -19,12 +19,13 @@ export default function OrganizerClient({ initialConcertId }: { initialConcertId
     concerts,
     getConcertTickets,
     createConcert,
+    cancelConcert,
     mintTicket,
     isOwner,
     transactionBusy
   } = useTicketChain();
   const [createForm, setCreateForm] = useState(emptyCreateForm);
-  const [mintForm, setMintForm] = useState({ concertId: "1", to: "" });
+  const [partnerRecipient, setPartnerRecipient] = useState("");
   const [tickets, setTickets] = useState<Verification[]>([]);
   const [ticketsLoading, setTicketsLoading] = useState(false);
   const [ticketError, setTicketError] = useState("");
@@ -33,6 +34,17 @@ export default function OrganizerClient({ initialConcertId }: { initialConcertId
     () => concerts.find((concert) => concert.id.toString() === initialConcertId) || null,
     [concerts, initialConcertId]
   );
+  const canManageSelectedConcert = Boolean(selectedConcert && selectedConcert.active && isOwner && !transactionBusy);
+
+  const cancelSelectedConcert = async () => {
+    if (!selectedConcert || !selectedConcert.active || !isOwner || transactionBusy) return;
+
+    const issuedTickets = selectedConcert.minted.toString();
+    const confirmed = window.confirm(
+      `Cancel ${selectedConcert.name}? ${issuedTickets} issued ticket${issuedTickets === "1" ? "" : "s"} will expire immediately and this cannot be undone.`
+    );
+    if (confirmed) await cancelConcert(selectedConcert.id.toString());
+  };
 
   useEffect(() => {
     if (!selectedConcert) {
@@ -71,14 +83,27 @@ export default function OrganizerClient({ initialConcertId }: { initialConcertId
           ) : (
             <article className="workspace">
               <div className="section-heading">
-                <div><p className="eyebrow">Issued ticket ledger</p><h2>{selectedConcert.name}</h2></div>
-                <StatusBadge label={`${selectedConcert.minted.toString()} / ${selectedConcert.totalSupply.toString()} minted`} tone="blue" />
+                <div>
+                  <p className="eyebrow">Issued ticket ledger</p>
+                  <h2>{selectedConcert.name} · Event #{selectedConcert.id.toString()}</h2>
+                </div>
+                <StatusBadge
+                  label={selectedConcert.active ? `${selectedConcert.minted.toString()} / ${selectedConcert.totalSupply.toString()} minted` : "Cancelled"}
+                  tone={selectedConcert.active ? "blue" : "red"}
+                />
               </div>
               <dl className="concert-metrics organizer-concert-summary">
                 <div><dt>Location</dt><dd>{selectedConcert.location}</dd></div>
                 <div><dt>Date</dt><dd>{selectedConcert.date}</dd></div>
                 <div><dt>Primary price</dt><dd>{formatEth(selectedConcert.originalPrice)}</dd></div>
+                <div><dt>Technical reference</dt><dd>Concert ID: {selectedConcert.id.toString()}</dd></div>
               </dl>
+              {!selectedConcert.active ? (
+                <div className="notice error organizer-cancelled-notice">
+                  <strong>Concert cancelled</strong>
+                  <p>{selectedConcert.minted.toString()} issued ticket{selectedConcert.minted.toString() === "1" ? "" : "s"} remain visible here as expired history.</p>
+                </div>
+              ) : null}
               {ticketsLoading ? <div className="loading-state">Reading issued tickets from Sepolia…</div> : null}
               {ticketError ? <div className="notice error"><strong>Could not load issued tickets</strong><p>{ticketError}</p></div> : null}
               {!ticketsLoading && !ticketError ? <OrganizerTicketTable tickets={tickets} /> : null}
@@ -105,18 +130,51 @@ export default function OrganizerClient({ initialConcertId }: { initialConcertId
               {!isOwner ? <p className="helper-copy">Switch to the contract owner wallet to execute organizer transactions.</p> : null}
             </article>
 
-            <article className="workspace">
+            <article className="workspace organizer-partner-panel">
               <div className="section-heading">
-                <div><p className="eyebrow">Primary issue</p><h2>Mint to wallet</h2></div>
+                <div><p className="eyebrow">Partner sale</p><h2>Issue selected concert ticket</h2></div>
                 <ShieldCheck size={21} />
               </div>
-              <p>Issue a ticket directly to a known attendee wallet without changing the primary-sale contract rules.</p>
-              <FormInput label="Concert ID" value={mintForm.concertId} inputMode="numeric" onChange={(concertId) => setMintForm({ ...mintForm, concertId })} />
-              <FormInput label="Recipient wallet" value={mintForm.to} placeholder="0x…" onChange={(to) => setMintForm({ ...mintForm, to })} />
-              <button className="primary-button full" onClick={() => void mintTicket(mintForm.concertId, mintForm.to)} disabled={!isOwner || transactionBusy}>
-                <Ticket size={17} /> Mint Ticket
+              {selectedConcert ? (
+                <div className="selected-concert-reference">
+                  <strong>{selectedConcert.name} · Event #{selectedConcert.id.toString()}</strong>
+                  <span>Technical concert ID: {selectedConcert.id.toString()}</span>
+                </div>
+              ) : (
+                <p className="helper-copy">Select a concert before issuing a partner-sale ticket.</p>
+              )}
+              <p>In production, a ticketing partner webhook would trigger this issuance. This demo keeps the organizer signature visible.</p>
+              <FormInput label="Recipient wallet" value={partnerRecipient} placeholder="0x…" onChange={setPartnerRecipient} />
+              <button
+                className="primary-button full"
+                onClick={() => selectedConcert && void mintTicket(selectedConcert.id.toString(), partnerRecipient)}
+                disabled={!canManageSelectedConcert}
+              >
+                <Ticket size={17} /> Confirm Partner Sale & Issue NFT
               </button>
               {!isOwner ? <p className="helper-copy">Switch to the contract owner wallet to execute organizer transactions.</p> : null}
+              {selectedConcert && !selectedConcert.active ? <p className="helper-copy">Cancelled concerts cannot issue new tickets.</p> : null}
+            </article>
+
+            <article className="workspace organizer-cancel-panel">
+              <div className="section-heading">
+                <div><p className="eyebrow">Concert status</p><h2>Cancellation control</h2></div>
+                <Ban size={21} />
+              </div>
+              {selectedConcert ? (
+                <>
+                  <p>
+                    Cancel {selectedConcert.name} · Event #{selectedConcert.id.toString()}. This will expire all {selectedConcert.minted.toString()} issued ticket{selectedConcert.minted.toString() === "1" ? "" : "s"}.
+                  </p>
+                  <button className="secondary-button full" onClick={() => void cancelSelectedConcert()} disabled={!canManageSelectedConcert}>
+                    <Ban size={17} /> {selectedConcert.active ? "Cancel Concert" : "Concert Cancelled"}
+                  </button>
+                  {!isOwner ? <p className="helper-copy">Switch to the contract owner wallet to execute organizer transactions.</p> : null}
+                  {selectedConcert.active ? <p className="helper-copy">You will be asked to confirm this irreversible on-chain cancellation.</p> : null}
+                </>
+              ) : (
+                <p className="helper-copy">Select a concert to review its cancellation control.</p>
+              )}
             </article>
           </section>
         </div>

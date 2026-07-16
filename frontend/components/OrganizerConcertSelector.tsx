@@ -28,10 +28,11 @@ export function OrganizerConcertSelector({
                 key={concertId}
                 aria-current={selected ? "page" : undefined}
               >
-                <strong>{concert.name}</strong>
+                <strong>{concert.name} · Event #{concertId}</strong>
                 <span>{concert.location}</span>
                 <span>{concert.date}</span>
-                <small>{concert.minted.toString()} / {concert.totalSupply.toString()} minted</small>
+                <small>Concert ID: {concertId} · {concert.minted.toString()} / {concert.totalSupply.toString()} minted</small>
+                {!concert.active ? <span className="organizer-concert-cancelled">Cancelled</span> : null}
               </Link>
             );
           })}

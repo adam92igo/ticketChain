@@ -91,6 +91,13 @@ export const ticketChainAbi = [
   },
   {
     type: "function",
+    name: "cancelConcert",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "concertId", type: "uint256" }],
+    outputs: []
+  },
+  {
+    type: "function",
     name: "mintTicket",
     stateMutability: "nonpayable",
     inputs: [
@@ -153,6 +160,7 @@ export const ticketChainAbi = [
           { name: "date", type: "string" },
           { name: "owner", type: "address" },
           { name: "used", type: "bool" },
+          { name: "concertActive", type: "bool" },
           { name: "maxResalePrice", type: "uint256" },
           { name: "listed", type: "bool" },
           { name: "resalePrice", type: "uint256" }

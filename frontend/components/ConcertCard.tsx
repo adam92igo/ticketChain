@@ -20,7 +20,7 @@ export function ConcertCard({
     <article className="concert-card">
       <div className="ticket-card-topline">
         <span className="ticket-stub"><Ticket size={17} /> Concert #{concert.id.toString()}</span>
-        <StatusBadge label={soldOut ? "Sold out" : "On sale"} tone={soldOut ? "red" : "green"} />
+        <StatusBadge label={!concert.active ? "Cancelled" : soldOut ? "Sold out" : "On sale"} tone={!concert.active || soldOut ? "red" : "green"} />
       </div>
       <h3>{concert.name}</h3>
       <p className="card-location"><MapPin size={15} /> {concert.location}</p>
@@ -30,9 +30,9 @@ export function ConcertCard({
         <div><dt>Max resale</dt><dd>{formatEth(concert.maxResalePrice)}</dd></div>
         <div><dt>Minted</dt><dd>{concert.minted.toString()} / {concert.totalSupply.toString()}</dd></div>
       </dl>
-      <button className="primary-button full" onClick={() => onBuy(concert)} disabled={disabled || soldOut}>
+      <button className="primary-button full" onClick={() => onBuy(concert)} disabled={disabled || soldOut || !concert.active}>
         <BadgeDollarSign size={17} />
-        {soldOut ? "Sold Out" : "Buy Ticket"}
+        {!concert.active ? "Concert Cancelled" : soldOut ? "Sold Out" : "Buy Ticket"}
       </button>
     </article>
   );
