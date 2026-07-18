@@ -4,7 +4,7 @@ import { DemoStepCard } from "@/components/DemoStepCard";
 import { PageHeader } from "@/components/PageHeader";
 
 const steps = [
-  ["Set up the organiser", "Open the Organizer Portal and use the contract-owner wallet for every write."],
+  ["Set up the organiser", "Open the Organizer Portal and use the contract-owner wallet for organizer operations: create, partner-sale issuance, cancellation, and mark-as-used. Client purchases, resale, and transfers are performed by their respective wallets."],
   ["Create a concert", "Use the contract-owner wallet to create the jury demo event."],
   ["Select the concert", "Show its empty issued-ticket list, then keep this view open for the ledger."],
   ["Confirm a partner sale", "With the selected concert, enter the buyer wallet and sign the real partner-sale issuance. Explain that this visible signature represents the production webhook step."],
