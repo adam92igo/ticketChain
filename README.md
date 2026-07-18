@@ -115,9 +115,9 @@ Blockchain does not solve every ticketing problem:
 | **/tickets** | Connected wallet's ticket collection, resale listing, and transfer | Yes | No |
 | **/marketplace** | Selected-concert resale inspection and purchase | No account for inspection; account for purchase | No |
 | **/organizer** | Organizer profile: concert inventory, partner issuance, cancellation, and per-concert issued-ticket view | No account for reads; account for writes | Yes for create, issue, and cancel |
-| **/gate** | Staff verification and mark-as-used | No account for checks; account for write action | Yes for mark-as-used |
+| **/gate** | Organizer entrance-staff verification and owner-only mark-as-used | No account for checks; account for write action | Yes for mark-as-used |
 | **/verify?tokenId=&lt;id&gt;** | Direct QR ticket verification | No connected account; MetaMask provider and Sepolia required | No |
-| **/demo** | Jury and test walkthrough | No | No |
+| **/demo** | Presentation scenario and recovery checklist | No | No |
 | **/about** | Product, lifecycle, and business explanation | No | No |
 
 The current read contract is created from MetaMask's injected browser provider. Consequently, inspection does not request account access, but MetaMask must be installed and set to Sepolia.
@@ -288,7 +288,7 @@ Complete **Deploying a Personal Contract** and configure its cancellation-compat
 2. Connect the wallet that deployed the configured contract before attempting an organizer write.
 3. Create a concert and wait for **Transaction confirmed**.
 4. Select the concert in the organizer inventory. It initially shows no issued tickets.
-5. In **Partner sale**, keep the selected concert, enter the buyer wallet copied from the partner platform, and confirm **Confirm Partner Sale & Issue NFT** in MetaMask. This is a real owner-signed mint; the visible signature deliberately represents the production partner webhook step, not an automatic webhook.
+5. In **Partner sale**, keep the selected concert, enter the buyer wallet copied from the partner platform, and confirm **Confirm partner sale & issue ticket** in MetaMask. This is a real owner-signed mint; the visible signature deliberately represents the production partner webhook step, not an automatic webhook.
 6. Optionally have a client buy another primary ticket from **/concerts**.
 7. Refresh or reselect the concert and confirm that its issued-ticket rows show the real token IDs, current owners, and listing status.
 

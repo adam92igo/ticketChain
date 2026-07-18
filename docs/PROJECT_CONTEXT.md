@@ -86,9 +86,9 @@ Routes:
 - **/tickets** — connected-wallet collection, QR links, resale listing, and controlled transfer.
 - **/marketplace** — selected-concert listing inspection and resale purchase; it reads no global listing feed.
 - **/organizer** — organizer profile with real concert inventory, selected-concert issued-ticket rows, partner issuance, and cancellation; write controls remain contract-owner-only.
-- **/gate** — gate decision and confirmed owner-only mark-as-used.
+- **/gate** — organizer entrance-staff decision and confirmed owner-only mark-as-used.
 - **/verify?tokenId=&lt;id&gt;** — direct QR-first verification.
-- **/demo** — jury presentation script.
+- **/demo** — presentation scenario and fallback checklist.
 - **/about** — problem, blockchain rationale, lifecycle, and business summary.
 
 The provider creates read contracts through MetaMask's injected Sepolia provider. Verification does not request account access, but the current implementation still requires MetaMask to be installed and Sepolia selected.

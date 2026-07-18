@@ -18,7 +18,7 @@ export default function AboutPage() {
         eyebrow="Product case"
         title="About TicketChain"
         description="A partner-sale, resale-control and ownership-verification feature within ticketing, built to demonstrate where public state and enforceable rules add real value."
-        actions={<Link className="secondary-button button-link" href="/demo">Open Demo Guide <ArrowRight size={16} /></Link>}
+        actions={<Link className="secondary-button button-link" href="/demo">View presentation scenario <ArrowRight size={16} /></Link>}
       />
 
       <section className="about-grid">

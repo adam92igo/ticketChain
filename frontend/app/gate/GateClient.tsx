@@ -60,16 +60,21 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
   return (
     <div className="route-page gate-page">
       <PageHeader
-        eyebrow="Staff entrance control"
+        eyebrow="Organizer entrance control"
         title="Gate Check"
-        description="Scan a ticket QR code or enter its token ID manually to verify ownership and usage status on-chain."
+        description="For the organizer’s entrance staff: scan a purchased ticket QR code or enter its bill number, then decide entry from its live Sepolia status."
         actions={<StatusBadge label={isOwner ? "Organizer ready" : "Read-only staff view"} tone={isOwner ? "green" : "amber"} />}
       />
+
+      <div className="gate-purpose-note">
+        <ShieldCheck size={19} />
+        <p><strong>For event staff.</strong> Gate Check validates the NFT’s concert, current status and one-time entry state. A valid QR proves the ticket record; the organizer records entry only after the guest is admitted.</p>
+      </div>
 
       <section className="gate-console">
         <article className="workspace gate-controls">
           <div className="section-heading">
-            <div><p className="eyebrow">Manual lookup</p><h2>Check a ticket</h2></div>
+            <div><p className="eyebrow">Entrance staff</p><h2>Scan or check a ticket</h2></div>
             <ScanLine size={22} />
           </div>
           <FormInput label="Token ID" value={tokenId} inputMode="numeric" placeholder="Scan or enter token ID" onChange={setTokenId} />
@@ -83,8 +88,8 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
           >
             <CheckCircle2 size={17} /> Mark as Used
           </button>
-          {!address ? <p className="helper-copy">Verification is read-only. Connect the organizer wallet to mark entry on-chain.</p> : null}
-          {address && !isOwner ? <p className="helper-copy">Only the contract owner can mark a ticket as used.</p> : null}
+          {!address ? <p className="helper-copy">Ticket lookup is public. Connect the contract-owner organizer wallet to record a valid ticket as used after entry.</p> : null}
+          {address && !isOwner ? <p className="helper-copy">This wallet can check entry, but only the contract-owner organizer wallet can record ticket use.</p> : null}
           <Link className="inline-link" href="/verify">Open public verification</Link>
         </article>
 
