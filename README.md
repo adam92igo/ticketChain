@@ -117,7 +117,7 @@ Blockchain does not solve every ticketing problem:
 | **/organizer** | Organizer profile: concert inventory, partner issuance, cancellation, and per-concert issued-ticket view | No account for reads; account for writes | Yes for create, issue, and cancel |
 | **/gate** | Staff verification and mark-as-used | No account for checks; account for write action | Yes for mark-as-used |
 | **/verify?tokenId=&lt;id&gt;** | Direct QR ticket verification | No connected account; MetaMask provider and Sepolia required | No |
-| **/demo** | Jury and test walkthrough | No | No |
+| **/demo** | Presentation scenario and recovery checklist | No | No |
 | **/about** | Product, lifecycle, and business explanation | No | No |
 
 The current read contract is created from MetaMask's injected browser provider. Consequently, inspection does not request account access, but MetaMask must be installed and set to Sepolia.

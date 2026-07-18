@@ -4,7 +4,7 @@ import { DemoStepCard } from "@/components/DemoStepCard";
 import { PageHeader } from "@/components/PageHeader";
 
 const steps = [
-  ["Open the organizer profile", "Choose Organisateur and open the read-only Organizer Portal on Sepolia."],
+  ["Set up the organiser", "Open the Organizer Portal and use the contract-owner wallet for every write."],
   ["Create a concert", "Use the contract-owner wallet to create the jury demo event."],
   ["Select the concert", "Show its empty issued-ticket list, then keep this view open for the ledger."],
   ["Confirm a partner sale", "With the selected concert, enter the buyer wallet and sign the real partner-sale issuance. Explain that this visible signature represents the production webhook step."],
@@ -24,11 +24,13 @@ export default function DemoPage() {
   return (
     <div className="route-page">
       <PageHeader
-        eyebrow="Jury presentation"
-        title="Demo Guide"
-        description="A calm, repeatable script for showing the complete TicketChain lifecycle live on Sepolia."
-        actions={<Link className="primary-button button-link" href="/concerts">Start Demo <ArrowRight size={17} /></Link>}
+        eyebrow="Presentation preparation"
+        title="Presentation scenario"
+        description="Use this short order of operations to explain the TicketChain feature and prove each on-chain rule during a live presentation."
+        actions={<Link className="primary-button button-link" href="/organizer">Open Organizer Portal <ArrowRight size={17} /></Link>}
       />
+
+      <p className="helper-copy">This page does not run a demo automatically. It tells you which real action to show next and what it proves.</p>
 
       <section className="demo-step-grid">
         {steps.map(([title, description], index) => <DemoStepCard key={title} number={index + 1} title={title} description={description} />)}
