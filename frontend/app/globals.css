@@ -1633,7 +1633,8 @@ dd.address-value {
     margin-left: 0;
   }
 
-  .primary-nav {
+  .primary-nav,
+  .primary-nav:has(a:nth-child(3)) {
     display: none;
     grid-template-columns: repeat(2, 1fr);
   }

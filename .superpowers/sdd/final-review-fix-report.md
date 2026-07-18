@@ -12,3 +12,7 @@
 - `npm test` — passed; 13 Solidity tests passing.
 - `npm run compile` — passed; no contracts required compilation.
 - `npm run frontend:build` — passed; Next.js production build completed successfully.
+
+## Mobile navigation specificity fix
+
+- At 820px and below, `.primary-nav:has(a:nth-child(3))` now explicitly shares the two-column mobile grid rule. The existing mobile link-border rules are unchanged.
