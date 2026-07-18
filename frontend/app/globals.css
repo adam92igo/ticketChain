@@ -349,6 +349,46 @@ input:focus-visible {
   width: 100%;
 }
 
+.gate-scanner-panel {
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--blue-soft);
+}
+
+.gate-scanner-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.gate-scanner-heading h3,
+.gate-scanner-heading p { margin-bottom: 0; }
+
+.gate-scanner-view {
+  overflow: hidden;
+  min-height: 240px;
+  margin: 12px 0;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  background: var(--ink);
+}
+
+.gate-scanner-view video,
+.gate-scanner-view img {
+  width: 100%;
+  min-height: 240px;
+  object-fit: cover;
+}
+
+.gate-scanner-panel .helper-copy {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .inline-link {
   display: inline-flex;
   align-items: center;
@@ -1680,6 +1720,10 @@ dd.address-value {
 }
 
 @media (max-width: 620px) {
+  .gate-scanner-view,
+  .gate-scanner-view video,
+  .gate-scanner-view img { min-height: 220px; }
+
   .ticket-list-summary,
   .ticket-list-title { align-items: flex-start; flex-direction: column; }
 
