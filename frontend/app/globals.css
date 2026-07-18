@@ -1280,6 +1280,19 @@ dd.address-value {
     linear-gradient(135deg, #fffdf8 0%, #e7f4ef 100%);
 }
 
+.gate-purpose-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+  border-left: 4px solid var(--violet);
+  padding: 11px 13px;
+  background: var(--violet-soft);
+}
+
+.gate-purpose-note svg { flex: 0 0 auto; color: var(--violet); }
+.gate-purpose-note p { margin: 0; }
+
 .gate-controls .primary-button {
   margin-top: 9px;
 }
