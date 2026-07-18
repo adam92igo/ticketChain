@@ -379,7 +379,7 @@ The current My Tickets UI exposes controlled transfer:
 Use the contract-owner wallet for the write step:
 
 1. Open **/gate**.
-2. Enter the token ID.
+2. Select **Scanner le QR** and allow camera access, or enter the bill number manually. The scanner accepts TicketChain verification QR links and never records entry by itself.
 3. Select **Check Ticket**.
 4. Confirm **Valid ticket** and **Entry approved**.
 5. Select **Mark as Used**.

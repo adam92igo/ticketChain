@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, DoorOpen, ExternalLink, ScanLine, ShieldCheck, Ticket } from "lucide-react";
+import { AlertTriangle, Camera, CheckCircle2, DoorOpen, ExternalLink, ScanLine, ShieldCheck, Ticket } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { FormInput } from "@/components/FormInput";
+import { GateQrScanner } from "@/components/GateQrScanner";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { CONTRACT_ADDRESS } from "@/config/app";
@@ -21,27 +22,31 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
   const [checking, setChecking] = useState(false);
   const [localError, setLocalError] = useState("");
   const [recorded, setRecorded] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   const decision = useMemo(() => result ? getGateDecision(result) : null, [result]);
 
-  const checkTicket = useCallback(async () => {
+  const checkTicketForToken = useCallback(async (value: string) => {
     setLocalError("");
     setRecorded(false);
     setResult(null);
     setChecking(true);
     try {
-      normalizeTokenId(tokenId);
-      setResult(await verifyTicket(tokenId));
+      const normalizedTokenId = normalizeTokenId(value);
+      setTokenId(normalizedTokenId);
+      setResult(await verifyTicket(normalizedTokenId));
     } catch (err) {
       setLocalError(getFriendlyError(err, "Gate check failed."));
     } finally {
       setChecking(false);
     }
-  }, [tokenId, verifyTicket]);
+  }, [verifyTicket]);
+
+  const checkTicket = useCallback(() => checkTicketForToken(tokenId), [checkTicketForToken, tokenId]);
 
   useEffect(() => {
-    if (initialTokenId && tokenId === initialTokenId) void checkTicket();
-  }, [initialTokenId, tokenId, checkTicket]);
+    if (initialTokenId) void checkTicketForToken(initialTokenId);
+  }, [initialTokenId, checkTicketForToken]);
 
   const useTicket = async () => {
     if (!result?.valid) return;
@@ -78,6 +83,18 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
             <ScanLine size={22} />
           </div>
           <FormInput label="Token ID" value={tokenId} inputMode="numeric" placeholder="Scan or enter token ID" onChange={setTokenId} />
+          <button className="secondary-button full" onClick={() => setScannerOpen((open) => !open)} disabled={checking}>
+            <Camera size={17} /> {scannerOpen ? "Close QR scanner" : "Scan the QR"}
+          </button>
+          {scannerOpen ? (
+            <GateQrScanner
+              onClose={() => setScannerOpen(false)}
+              onTokenScanned={(scannedTokenId) => {
+                setScannerOpen(false);
+                void checkTicketForToken(scannedTokenId);
+              }}
+            />
+          ) : null}
           <button className="secondary-button full" onClick={() => void checkTicket()} disabled={!tokenId || checking}>
             <DoorOpen size={17} /> {checking ? "Checking Sepolia…" : "Check Ticket"}
           </button>
@@ -96,7 +113,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
         <article className="workspace gate-display" aria-live="polite">
           {localError ? <div className="notice error"><strong>Gate check failed</strong><p>{localError}</p></div> : null}
           {!result && !localError ? (
-            <EmptyState title="Awaiting a ticket" description="No ticket selected. Enter a numeric token ID to make an entry decision." icon={<ShieldCheck size={22} />} />
+            <EmptyState title="Awaiting a ticket" description="Scan a TicketChain QR code or enter a numeric bill number to make an entry decision." icon={<ShieldCheck size={22} />} />
           ) : null}
           {result && decision ? (
             <div className={`gate-result ${decision.tone}`}>

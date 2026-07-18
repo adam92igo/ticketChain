@@ -34,7 +34,7 @@ A second wallet that selects the concert containing the ticket. It can inspect o
 
 ### Gate Staff
 
-A user who checks a token ID and sees **Valid ticket**, **Already used**, **Concert cancelled**, or **Invalid ticket** with an entry decision. Only the contract owner can execute **Mark as Used** for an active, unused ticket.
+A user who can scan the TicketChain QR or enter a token ID and sees **Valid ticket**, **Already used**, **Concert cancelled**, or **Invalid ticket** with an entry decision. Only the contract owner records use after confirming **Mark as Used** for an active, unused ticket.
 
 ## 3. Core On-Chain Flow
 
