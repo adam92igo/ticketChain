@@ -15,6 +15,20 @@ type ScannerInstance = {
   clear: () => void | Promise<void>;
 };
 
+async function stopAndClear(scanner: ScannerInstance) {
+  try {
+    await scanner.stop();
+  } catch {
+    // The scanner may not have started or may already be stopped.
+  }
+
+  try {
+    await scanner.clear();
+  } catch {
+    // Cleanup is best-effort when the scanner startup was interrupted.
+  }
+}
+
 export function GateQrScanner({
   onTokenScanned,
   onClose
@@ -29,37 +43,60 @@ export function GateQrScanner({
 
   useEffect(() => {
     let active = true;
+    let starting = false;
+    let scanner: ScannerInstance | null = null;
+
+    const cleanup = () => {
+      if (!scanner) return;
+      if (scannerRef.current === scanner) scannerRef.current = null;
+      void stopAndClear(scanner);
+    };
 
     const start = async () => {
       try {
         const { Html5Qrcode, Html5QrcodeSupportedFormats } = await import("html5-qrcode");
         if (!active) return;
 
-        const scanner = new Html5Qrcode(scannerId, {
+        const scannerInstance = new Html5Qrcode(scannerId, {
           formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
           verbose: false
         });
-        scannerRef.current = scanner;
+        scanner = scannerInstance;
+        scannerRef.current = scannerInstance;
 
-        await scanner.start(
+        starting = true;
+        await scannerInstance.start(
           { facingMode: "environment" },
           { fps: 10, qrbox: { width: 240, height: 240 } },
           (decodedText) => {
+            if (!active) return;
+
             const tokenId = parseGateQrToken(decodedText);
             if (!tokenId || handledRef.current) {
-              if (!tokenId) setStatus("This is not a TicketChain ticket QR. Scan the verification QR or enter the bill number.");
+              if (!tokenId && active) setStatus("This is not a TicketChain ticket QR. Scan the verification QR or enter the bill number.");
               return;
             }
 
             handledRef.current = true;
             setStatus("Ticket found. Checking Sepolia…");
-            void scanner.stop().catch(() => undefined).finally(() => onTokenScanned(tokenId));
+            void stopAndClear(scannerInstance).then(() => {
+              if (active) onTokenScanned(tokenId);
+            });
           },
           () => undefined
         );
-        setStatus("Point the camera at a TicketChain QR code.");
+        starting = false;
+
+        if (!active) {
+          cleanup();
+          return;
+        }
+
+        if (!handledRef.current) setStatus("Point the camera at a TicketChain QR code.");
       } catch {
-        setStatus("Camera access is unavailable. Allow camera access or enter the bill number manually.");
+        starting = false;
+        cleanup();
+        if (active) setStatus("Camera access is unavailable. Allow camera access or enter the bill number manually.");
       }
     };
 
@@ -67,13 +104,7 @@ export function GateQrScanner({
 
     return () => {
       active = false;
-      const scanner = scannerRef.current;
-      scannerRef.current = null;
-      if (scanner) {
-        void scanner.stop().catch(() => undefined).finally(() => {
-          void Promise.resolve(scanner.clear()).catch(() => undefined);
-        });
-      }
+      if (starting || scanner) cleanup();
     };
   }, [onTokenScanned, scannerId]);
 
