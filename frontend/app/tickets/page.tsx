@@ -25,7 +25,7 @@ export default function TicketsPage() {
       <PageHeader
         eyebrow="Fan wallet"
         title="My Tickets"
-        description="Your on-chain ticket wallet: ownership, usage status, resale rules and the QR link staff scan at the gate."
+        description="Your on-chain tickets in one compact list. Open a ticket to show its QR, verification link, resale controls or transfer form."
         actions={<StatusBadge label={`${myTickets.length} owned`} tone="blue" />}
       />
 
@@ -49,7 +49,7 @@ export default function TicketsPage() {
         />
       ) : null}
 
-      <section className="ticket-grid">
+      <section className="ticket-list" aria-label="Owned tickets">
         {myTickets.map((ticket) => (
           <TicketCard
             ticket={ticket}

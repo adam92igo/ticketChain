@@ -693,16 +693,16 @@ input:focus-visible {
   margin-bottom: 0;
 }
 
-.concert-grid,
-.ticket-grid {
+.concert-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 13px;
 }
 
-.ticket-grid {
+.ticket-list {
+  display: grid;
+  gap: 10px;
   margin-top: 16px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .concert-card,
@@ -731,6 +731,66 @@ input:focus-visible {
   justify-content: space-between;
   margin-bottom: 16px;
 }
+
+.ticket-list-item { padding: 0; }
+
+.ticket-list-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 15px 18px;
+}
+
+.ticket-list-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.ticket-list-title h3 { margin: 0 0 4px; }
+.ticket-list-title .card-location { margin: 0; }
+
+.ticket-list-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.ticket-list-status span {
+  display: grid;
+  gap: 2px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 850;
+  text-align: right;
+}
+
+.ticket-list-status small {
+  color: var(--muted);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.ticket-list-details {
+  border-top: 1px solid var(--line);
+  padding: 0 18px 16px;
+}
+
+.ticket-list-details > summary {
+  cursor: pointer;
+  padding: 12px 0 0;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.ticket-list-expanded { padding-top: 2px; }
 
 .ticket-stub {
   width: fit-content;
@@ -1589,10 +1649,6 @@ dd.address-value {
     grid-template-columns: 1fr;
   }
 
-  .ticket-grid {
-    grid-template-columns: 1fr;
-  }
-
   .page-header {
     min-height: 230px;
     align-items: flex-start;
@@ -1603,6 +1659,14 @@ dd.address-value {
   .about-lifecycle {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+@media (max-width: 620px) {
+  .ticket-list-summary,
+  .ticket-list-title { align-items: flex-start; flex-direction: column; }
+
+  .ticket-list-status { justify-content: flex-start; }
+  .ticket-list-status span { text-align: left; }
 }
 
 @media (max-width: 720px) {
