@@ -1449,6 +1449,7 @@ dd.address-value {
 
 .app-footer {
   justify-content: flex-end;
+  flex-wrap: wrap;
   min-height: 56px;
   color: var(--muted);
   font-size: 12px;
@@ -1459,6 +1460,19 @@ dd.address-value {
   align-items: center;
   gap: 4px;
   font-weight: 850;
+}
+
+.footer-links {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-links a {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 850;
+  text-underline-offset: 3px;
 }
 
 @media (max-width: 1120px) {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { AppHeader } from "@/components/AppHeader";
 import { TransactionStatus } from "@/components/TransactionStatus";
 import { CONTRACT_ADDRESS } from "@/config/app";
@@ -35,6 +36,10 @@ export default function RootLayout({
               ) : (
                 <span>Not configured</span>
               )}
+              <nav className="footer-links" aria-label="Product information">
+                <Link href="/demo">Presentation scenario</Link>
+                <Link href="/about">About</Link>
+              </nav>
             </footer>
           </div>
         </TicketChainProvider>

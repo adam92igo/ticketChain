@@ -11,9 +11,7 @@ export const clientNavigationItems = [
 
 export const organizerNavigationItems = [
   { href: "/organizer", label: "Organizer Portal" },
-  { href: "/gate", label: "Gate Check" },
-  { href: "/demo", label: "Demo Guide" },
-  { href: "/about", label: "About" }
+  { href: "/gate", label: "Gate Check" }
 ] as const;
 
 export const emptyCreateForm = {
