@@ -1588,6 +1588,10 @@ dd.address-value {
 
 @media (max-width: 1120px) {
   .primary-nav {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .primary-nav:has(a:nth-child(3)) {
     grid-template-columns: repeat(4, 1fr);
   }
 

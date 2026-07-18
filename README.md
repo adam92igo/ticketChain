@@ -288,7 +288,7 @@ Complete **Deploying a Personal Contract** and configure its cancellation-compat
 2. Connect the wallet that deployed the configured contract before attempting an organizer write.
 3. Create a concert and wait for **Transaction confirmed**.
 4. Select the concert in the organizer inventory. It initially shows no issued tickets.
-5. In **Partner sale**, keep the selected concert, enter the buyer wallet copied from the partner platform, and confirm **Confirm Partner Sale & Issue NFT** in MetaMask. This is a real owner-signed mint; the visible signature deliberately represents the production partner webhook step, not an automatic webhook.
+5. In **Partner sale**, keep the selected concert, enter the buyer wallet copied from the partner platform, and confirm **Confirm partner sale & issue ticket** in MetaMask. This is a real owner-signed mint; the visible signature deliberately represents the production partner webhook step, not an automatic webhook.
 6. Optionally have a client buy another primary ticket from **/concerts**.
 7. Refresh or reselect the concert and confirm that its issued-ticket rows show the real token IDs, current owners, and listing status.
 
