@@ -132,7 +132,7 @@ export default function OrganizerClient({ initialConcertId }: { initialConcertId
 
             <article className="workspace organizer-partner-panel">
               <div className="section-heading">
-                <div><p className="eyebrow">Partner sale</p><h2>Issue selected concert ticket</h2></div>
+                <div><p className="eyebrow">Partner sale</p><h2>Issue a ticket after partner sale</h2></div>
                 <ShieldCheck size={21} />
               </div>
               {selectedConcert ? (
@@ -143,14 +143,22 @@ export default function OrganizerClient({ initialConcertId }: { initialConcertId
               ) : (
                 <p className="helper-copy">Select a concert before issuing a partner-sale ticket.</p>
               )}
-              <p>In production, a ticketing partner webhook would trigger this issuance. This demo keeps the organizer signature visible.</p>
+              <div className="partner-sale-explainer">
+                <p><strong>What this demonstrates</strong></p>
+                <ol className="partner-sale-steps">
+                  <li><span>1</span><p>A ticketing partner confirms that the customer has paid outside TicketChain.</p></li>
+                  <li><span>2</span><p>You enter the customer’s wallet for the selected concert.</p></li>
+                  <li><span>3</span><p>Your MetaMask signature issues the real NFT ticket to that wallet on Sepolia.</p></li>
+                </ol>
+                <p className="helper-copy">For this MVP, you trigger the last step manually. In production, a secured partner webhook would request it after payment confirmation.</p>
+              </div>
               <FormInput label="Recipient wallet" value={partnerRecipient} placeholder="0x…" onChange={setPartnerRecipient} />
               <button
                 className="primary-button full"
                 onClick={() => selectedConcert && void mintTicket(selectedConcert.id.toString(), partnerRecipient)}
                 disabled={!canManageSelectedConcert}
               >
-                <Ticket size={17} /> Confirm Partner Sale & Issue NFT
+                <Ticket size={17} /> Confirm partner sale & issue ticket
               </button>
               {!isOwner ? <p className="helper-copy">Switch to the contract owner wallet to execute organizer transactions.</p> : null}
               {selectedConcert && !selectedConcert.active ? <p className="helper-copy">Cancelled concerts cannot issue new tickets.</p> : null}
