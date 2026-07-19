@@ -10,11 +10,11 @@ const steps = [
   ["Confirm a partner sale", "With the selected concert, enter the buyer wallet and sign the real partner-sale issuance. Explain that this visible signature represents the production webhook step."],
   ["Show issued tickets", "Refresh the selected concert and point out the real token IDs, current owners, and listing status."],
   ["Open My Tickets", "Switch to the client wallet and load its owned NFT collection."],
-  ["Show QR and wallet proof", "Open /verify?tokenId=<id>; explain public validity, then connect the holder wallet to compare ownership."],
+  ["Show public ticket proof", "Open /verify?tokenId=<id>; explain that public validity identifies the NFT but does not authorize gate entry."],
   ["Resell by concert or transfer", "List a ticket, select its concert in Marketplace, and buy with the second wallet; or use controlled transfer, then refresh the organizer row."],
-  ["Open Gate Check", "Use the organizer row’s Gate Check link so the token ID is preloaded."],
-  ["Reject once", "Reject Mark as Used in MetaMask and show that the ticket still reads as unused."],
-  ["Confirm use", "Approve Mark as Used and wait for the confirmed Sepolia transaction before showing the used state."],
+  ["Prove the holder at Gate Check", "Use the organizer row’s Gate Check link, show Mark as Used locked, present the challenge QR to the holder phone, sign with the latest owner wallet, then scan the returned proof."],
+  ["Reject once", "After Wallet holder confirmed appears, reject Mark as Used in the organizer MetaMask and show that the ticket still reads as unused."],
+  ["Confirm use", "While the holder proof remains current, approve Mark as Used and wait for the confirmed Sepolia transaction before showing the used state."],
   ["Verify again", "Reopen the same QR link and show Already used with Entry denied."],
   ["Show cancellation expiry", "With a separate concert, reject cancellation once, then confirm it. Show its QR and Gate Check return Concert cancelled / Entry denied."],
   ["Open Sepolia Etherscan", "Finish with the issuance, cancellation, resale, or NFT public record."]
@@ -41,8 +41,8 @@ export default function DemoPage() {
           <div className="section-heading"><div><p className="eyebrow">Required wallets</p><h2>Two profiles, three moments</h2></div><Wallet size={22} /></div>
           <ul className="check-list">
             <li><strong>Organisateur:</strong> the portal is readable without an account; use the deployer/contract-owner wallet for create, partner-sale issuance, cancellation and gate use.</li>
-            <li><strong>Client:</strong> a second wallet for primary purchase, ticket ownership, concert-scoped resale, transfer and holder-wallet proof.</li>
-            <li>Public QR validation reads ticket state; it does not by itself prove control of the holder wallet.</li>
+            <li><strong>Client:</strong> a second wallet and phone for primary purchase, ticket ownership, concert-scoped resale, transfer, and the signed Gate Check challenge.</li>
+            <li>Public QR validation reads ticket state; Gate Check still requires the returned signature proof from the latest owner.</li>
             <li>Fund both wallets with enough Sepolia ETH before the presentation.</li>
           </ul>
         </article>
@@ -53,6 +53,7 @@ export default function DemoPage() {
             <li>Save the deployed contract address and direct verification URLs.</li>
             <li>Open Etherscan tabs before presenting in case confirmation is slow.</li>
             <li>Confirm both wallets can switch to Sepolia.</li>
+            <li>Use a deployed or LAN-accessible frontend origin so the holder phone can open the Gate Check challenge QR; localhost on the staff device is not reachable from a second phone.</li>
           </ul>
         </article>
         <article className="workspace full-span">
@@ -63,6 +64,7 @@ export default function DemoPage() {
             <p><strong>Cancelled concert:</strong> use a separate demo concert; its QR and Gate Check must deny entry without marking tickets used.</p>
             <p><strong>Insufficient funds:</strong> top up with a Sepolia faucet and keep a funded backup wallet ready.</p>
             <p><strong>Wrong account:</strong> switch in MetaMask and wait for the header address and page data to refresh.</p>
+            <p><strong>Rejected or expired proof:</strong> recheck the ticket to issue a fresh challenge; Mark as Used must remain locked.</p>
           </div>
         </article>
       </section>

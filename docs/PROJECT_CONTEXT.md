@@ -11,9 +11,9 @@ The intended two-profile demo story requires a cancellation-compatible Sepolia d
 1. The organizer profile creates a concert and selects it in `/organizer`.
 2. After a confirmed partner sale, the organizer signs the real issuance transaction to the buyer wallet. This is an explicit MVP stand-in for a production partner webhook, not a backend integration.
 3. The client buys, owns, verifies, lists, transfers, or resells NFT tickets within the contract rules; resale is browsed one concert at a time.
-4. Public QR verification reads validity and the current owner without account connection; optional holder-wallet proof separately compares the connected wallet to that owner.
+4. Public QR verification reads validity and the current owner without account connection. At Gate Check, the ticket QR only identifies the NFT; the current owner signs a fresh five-minute challenge on a second device and returns a proof QR before entry can be recorded.
 5. The organizer can cancel a concert. Its issued tickets remain historical records but are immediately expired: QR and Gate Check return **Concert cancelled / Entry denied**, and issuance, sale, resale, transfer, and use are blocked.
-6. For an active concert, the organizer follows the ticket's Gate Check link, records use only after confirmation, and a later QR check returns **Already used / Entry denied**.
+6. For an active concert, Gate Check re-reads Sepolia, validates the returned signature against the latest owner, enables **Mark as Used** only while that proof is current, records use only after transaction confirmation, and a later QR check returns **Already used / Entry denied**.
 7. Etherscan provides independent transaction and ownership evidence.
 
 This is an academic MVP for the BTS FinTech Summer School, not production ticketing software.
@@ -26,7 +26,7 @@ The wallet that deployed the contract. It can create concerts, issue a ticket af
 
 ### Ticket Holder
 
-A client wallet that owns a ticket NFT. It can buy a primary ticket, view the ticket in My Tickets, open or copy its QR verification link, list it for resale, transfer it, or buy a known listed ticket. A connected holder can prove wallet control on the verify page by matching MetaMask to the current on-chain owner.
+A client wallet that owns a ticket NFT. It can buy a primary ticket, view the ticket in My Tickets, open or copy its QR verification link, list it for resale, transfer it, or buy a known listed ticket. For gate entry, the holder opens the staff device’s challenge on a second phone and signs it with the current owner wallet; ordinary `/verify` without a challenge retains its optional connected-wallet comparison.
 
 ### Resale Buyer
 
@@ -34,7 +34,7 @@ A second wallet that selects the concert containing the ticket. It can inspect o
 
 ### Gate Staff
 
-A user who can scan the TicketChain QR or enter a token ID and sees **Valid ticket**, **Already used**, **Concert cancelled**, or **Invalid ticket** with an entry decision. Only the contract owner records use after confirming **Mark as Used** for an active, unused ticket.
+A user who scans the TicketChain ticket QR or enters a token ID, presents a one-time challenge to the holder, and scans the returned signature proof. A valid ticket alone shows **Ticket identified — wallet proof required**. Only a current proof from the latest owner enables the contract owner to confirm **Mark as Used** for an active, unused ticket.
 
 ## 3. Core On-Chain Flow
 
@@ -93,7 +93,7 @@ Routes:
 
 The provider creates read contracts through MetaMask's injected Sepolia provider. Verification does not request account access, but the current implementation still requires MetaMask to be installed and Sepolia selected.
 
-Ticket QR codes are generated from **window.location.origin** plus **/verify?tokenId=&lt;id&gt;**. A localhost QR is suitable for opening on the same computer. Physical phone scanning requires a deployed or LAN-accessible frontend origin. QR verification is public validity evidence, not holder-wallet-control evidence; the optional connected-wallet comparison is intentionally separate.
+Ticket QR codes are generated from **window.location.origin** plus **/verify?tokenId=&lt;id&gt;**. Gate holder challenges use that same origin and the exact query keys `tokenId`, `contractAddress`, `chainId`, `nonce`, and `expiresAt`. A localhost QR is suitable for opening on the same computer, but the two-device handoff requires a deployed or LAN-accessible frontend origin that the holder phone can reach. QR verification is public validity evidence, not holder-wallet-control evidence; Gate Check requires the returned signed proof.
 
 ## 6. Smart Contract Responsibilities
 
@@ -123,9 +123,11 @@ The frontend ABI is manually maintained in **frontend/config/ticketchainAbi.ts**
 - A cancelled concert's tickets are expired, remain visible as history, and cannot be minted, bought, listed, resold, transferred, or used.
 - Gate Check refreshes to a used state only after **markAsUsed** returns a confirmed transaction result.
 - A rejected or failed MetaMask request must not produce optimistic success.
+- Gate Check must re-read the ticket before validating every returned holder proof, compare the recovered signer with the latest owner, and consume a nonce only after successful validation.
+- **Mark as Used** requires an active, unexpired confirmation keyed to the current challenge and valid ticket. Ticket changes, new challenges, expiry, invalidation, rejected proof, or replay clear or disable that confirmation.
 - Marketplace browsing reads only the selected concert's `getConcertTicketIds` result and filters that real on-chain set; it must not enumerate or invent global listings.
 - **/verify?tokenId=&lt;id&gt;** must remain independently addressable from a QR link.
-- Public QR validity and connected holder-wallet proof are separate: a QR alone does not prove the presenter controls the owner wallet.
+- Public QR validity and holder-wallet proof are separate: a valid ticket QR alone never enables Gate Check entry recording.
 - Invalid token text must return **Enter a numeric token ID.**
 - Unknown numeric tokens must return a clean invalid result rather than a contract revert.
 - Owner-only frontend controls depend on the configured contract's deployment wallet.
@@ -172,12 +174,14 @@ The cancellation-compatible contract requires a new deployment and an ignored `f
 - organizer profile reads a new concert, creates it with the owner wallet, and shows no issued tickets initially;
 - partner-sale issuance and client primary purchase both appear as correct issued-ticket rows for the selected concert;
 - connected holder sees the NFT and QR link, while direct QR verification displays the expected token, owner, network, and entry decision;
-- connecting the holder wallet proves only whether the current MetaMask wallet matches the on-chain owner;
+- a valid Gate Check ticket remains identified and wallet-proof-required until the two-device challenge is signed and returned;
+- wrong-owner, wrong-ticket, malformed, expired, and replayed proof QRs are rejected explicitly without enabling **Mark as Used**;
+- failed proofs remain retryable because only a successful proof consumes the challenge nonce;
 - malformed, unknown, and used token IDs show the correct states;
 - two MetaMask accounts complete listing and concert-scoped resale purchase;
 - the newly selected MetaMask account is authorized for the local site;
 - ownership changes after resale or transfer;
-- organizer Gate Check links preload the selected token and mark a valid ticket as used only after confirmation;
+- organizer Gate Check links preload the selected token, require a current holder proof, and mark a valid ticket as used only after transaction confirmation;
 - rejecting **Mark as Used** does not falsely update the result;
 - used tickets return **Already used / Entry denied**;
 - rejecting cancellation does not falsely display a cancelled concert; confirmed cancellation makes QR verification expired and Gate Check deny entry;

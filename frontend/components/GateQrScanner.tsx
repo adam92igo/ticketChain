@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Camera, X } from "lucide-react";
-import { parseGateQrToken } from "@/lib/gateQr";
+import { parseGateQrScan, type GateQrScanMode } from "@/lib/gateQr";
 
 type ScannerInstance = {
   start: (
@@ -30,10 +30,12 @@ async function stopAndClear(scanner: ScannerInstance) {
 }
 
 export function GateQrScanner({
-  onTokenScanned,
+  mode,
+  onScanned,
   onClose
 }: {
-  onTokenScanned: (tokenId: string) => void;
+  mode: GateQrScanMode;
+  onScanned: (value: string) => void;
   onClose: () => void;
 }) {
   const scannerId = useId().replace(/:/g, "-");
@@ -71,16 +73,20 @@ export function GateQrScanner({
           (decodedText) => {
             if (!active) return;
 
-            const tokenId = parseGateQrToken(decodedText);
-            if (!tokenId || handledRef.current) {
-              if (!tokenId && active) setStatus("This is not a TicketChain ticket QR. Scan the verification QR or enter the bill number.");
+            const value = parseGateQrScan(decodedText, mode);
+            if (!value || handledRef.current) {
+              if (!value && active) {
+                setStatus(mode === "ticket"
+                  ? "This is not a TicketChain ticket QR. Scan the verification QR or enter the bill number."
+                  : "This proof QR is empty. Ask the holder to create a new proof.");
+              }
               return;
             }
 
             handledRef.current = true;
-            setStatus("Ticket found. Checking Sepolia…");
+            setStatus(mode === "ticket" ? "Ticket found. Checking Sepolia…" : "Proof found. Rechecking Sepolia…");
             void stopAndClear(scannerInstance).then(() => {
-              if (active) onTokenScanned(tokenId);
+              if (active) onScanned(value);
             });
           },
           () => undefined
@@ -92,11 +98,19 @@ export function GateQrScanner({
           return;
         }
 
-        if (!handledRef.current) setStatus("Point the camera at a TicketChain QR code.");
+        if (!handledRef.current) {
+          setStatus(mode === "ticket"
+            ? "Point the camera at a TicketChain ticket QR code."
+            : "Point the camera at the holder’s returned proof QR.");
+        }
       } catch {
         starting = false;
         cleanup();
-        if (active) setStatus("Camera access is unavailable. Allow camera access or enter the bill number manually.");
+        if (active) {
+          setStatus(mode === "ticket"
+            ? "Camera access is unavailable. Allow camera access or enter the bill number manually."
+            : "Camera access is unavailable. Allow camera access, then scan the holder proof again.");
+        }
       }
     };
 
@@ -106,12 +120,12 @@ export function GateQrScanner({
       active = false;
       if (starting || scanner) cleanup();
     };
-  }, [onTokenScanned, scannerId]);
+  }, [mode, onScanned, scannerId]);
 
   return (
     <div className="gate-scanner-panel" aria-live="polite">
       <div className="gate-scanner-heading">
-        <div><p className="eyebrow">Camera scanner</p><h3>Scan TicketChain QR</h3></div>
+        <div><p className="eyebrow">Camera scanner</p><h3>{mode === "ticket" ? "Scan TicketChain ticket" : "Scan returned holder proof"}</h3></div>
         <button className="icon-button" onClick={onClose} aria-label="Close QR scanner"><X size={18} /></button>
       </div>
       <div id={scannerId} className="gate-scanner-view" />

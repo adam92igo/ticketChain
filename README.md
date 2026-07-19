@@ -59,7 +59,7 @@ TicketChain records each ticket as a unique NFT. The smart contract links it to 
 - **Organisateur:** opens `/organizer` to read real concerts and the issued tickets for a selected concert. Contract-owner-only controls create concerts, issue a real NFT after a partner-confirmed sale, cancel a concert, and record gate usage.
 - **Gate staff:** checks public authenticity and usage status. The contract owner alone can mark entry as used.
 
-Public QR validity and holder-wallet proof are deliberately separate. A QR lookup reads the ticket state and current owner from Sepolia without account connection; connecting MetaMask only compares the connected wallet with that owner. A QR alone does not prove that the person presenting it controls the holder wallet.
+Public QR validity and holder-wallet proof are deliberately separate. A QR lookup reads the ticket state and current owner from Sepolia without account connection. At Gate Check, a valid ticket QR only identifies the NFT: the holder must use a second device to sign a fresh five-minute challenge before the organizer can record entry. Ordinary public verification still offers an optional connected-wallet comparison when no gate challenge is present.
 
 TicketChain is an academic MVP running only on Ethereum Sepolia with testnet funds.
 
@@ -100,7 +100,7 @@ Blockchain does not solve every ticketing problem:
 - Concert-scoped marketplace inspection and resale purchase from real active, listed, unused tickets only.
 - Controlled ticket transfer with a declared-price cap.
 - Read-only `/organizer` concert inventory with issued-ticket rows, current owners, listing status, and gate links.
-- Gate Check with valid, used, and invalid decisions.
+- Two-device Gate Check with ticket identification, a five-minute holder challenge, returned signature proof, replay rejection, and valid, used, or invalid decisions.
 - Owner-only mark-as-used transaction and prevention of ticket reuse.
 - Sepolia Etherscan links for the contract, wallet, NFT, and transaction.
 - Global wallet-confirmation, pending, confirmed, and failed transaction states.
@@ -376,24 +376,37 @@ The current My Tickets UI exposes controlled transfer:
 
 ### F. Gate Check Flow
 
-Use the contract-owner wallet for the write step:
+Use the contract-owner wallet for the final write step and the current NFT owner’s MetaMask wallet on a second phone:
 
 1. Open **/gate**.
-2. Select **Scanner le QR** and allow camera access, or enter the bill number manually. The scanner accepts TicketChain verification QR links and never records entry by itself.
-3. Select **Check Ticket**.
-4. Confirm **Valid ticket** and **Entry approved**.
-5. Select **Mark as Used**.
-6. Confirm the transaction and wait for **Transaction confirmed**.
-7. Check or verify the ticket again.
-8. Confirm **Already used** and **Entry denied**.
+2. Select **Scan ticket QR** and allow camera access, or enter the numeric token ID manually. Ticket scan mode accepts only same-origin TicketChain **/verify?tokenId=&lt;id&gt;** links.
+3. Select **Check Ticket**. A live valid Sepolia result must show **Ticket identified — wallet proof required**, never **Entry approved**, and **Mark as Used** must remain disabled.
+4. Present the five-minute challenge QR to the holder’s phone. Its **/verify** URL contains exactly `tokenId`, `contractAddress`, `chainId`, `nonce`, and `expiresAt`.
+5. On the holder’s phone, verify the ticket, connect the current owner wallet, and select **Connect and sign proof**. This signs a message only; it sends no transaction and costs no gas.
+6. The phone displays a returned proof QR. On Gate Check, select **Scan holder proof** and scan it.
+7. Gate Check first re-reads the ticket from Sepolia, then locally recovers the signer and compares it with the latest current owner. Confirm **Wallet holder confirmed**; only now may **Mark as Used** become available to the organizer wallet.
+8. Select **Mark as Used**, confirm the transaction, and wait for **Transaction confirmed**.
+9. Confirm the proof is cleared and the refreshed ticket shows **Already used / Entry denied**.
+
+The challenge URL uses `window.location.origin`. A `localhost` URL cannot normally be opened from a separate phone; use a deployed frontend or a LAN-accessible origin that both devices can reach. The returned proof is checked locally by the Gate Check device; no backend or indexer is involved.
+
+Holder-proof rejection checks:
+
+- sign with a wallet other than the latest owner: expect an explicit wrong-owner rejection and keep **Mark as Used** disabled;
+- scan a malformed QR or a proof for another ticket/challenge: expect an explicit rejected state;
+- let the five-minute countdown expire before scanning: expect **Challenge expired**, no holder confirmation, and an option to recheck the ticket and issue a new challenge;
+- after one proof is accepted, scan the same returned proof again: expect replay rejection and disabled **Mark as Used**; issue a new challenge to continue;
+- transfer the NFT after the challenge is issued, then scan the former owner’s proof: the required fresh Sepolia read must reject it against the new owner;
+- reject the holder’s MetaMask connection or signature request: no proof QR is created and Gate Check remains locked;
+- failed proofs do not consume the nonce, so the current owner can retry the same unexpired challenge; only a successfully validated proof consumes it.
 
 Rejection-safety check:
 
-1. Check a valid, unused ticket.
+1. Complete the holder proof until **Wallet holder confirmed** appears.
 2. Select **Mark as Used**.
-3. Reject the request in MetaMask.
+3. Reject the request in the organizer’s MetaMask.
 4. Confirm the global notice reports failure and the result does not falsely change to used.
-5. Repeat the transaction and approve it only after completing this rejection check.
+5. Repeat the transaction and approve it only while the same challenge confirmation remains current.
 
 ## 14. Test Wallet Funding
 
@@ -517,10 +530,10 @@ This revised demo scenario requires a newly deployed cancellation-compatible Sep
 3. Issue one ticket through the visible partner-sale action, explaining that it represents a production webhook after a real partner payment; optionally let a client buy another from **Events**.
 4. Return to the selected organizer concert and show the issued-ticket rows with their real token IDs and owners.
 5. In the **Client** profile, show an owned NFT, its QR code, and the public **/verify?tokenId=&lt;id&gt;** result.
-6. Connect the holder wallet on the verify page to demonstrate the separate holder-wallet proof.
+6. In Gate Check, identify that ticket and show that its ticket QR alone leaves **Mark as Used** locked. Present the challenge QR to the holder’s phone, sign it with the current-owner wallet, and scan the returned proof QR.
 7. In Marketplace, select the ticket's concert, resell or transfer the ticket, then refresh the organizer view to show the changed current owner and listing status.
-8. Follow the organizer Gate Check link for the token, reject **Mark as Used** once, and confirm the result remains unused.
-9. Approve **Mark as Used** and wait for the confirmed transaction before showing the used state.
+8. Follow the organizer Gate Check link for the token, complete a fresh holder proof, reject **Mark as Used** once, and confirm the result remains unused.
+9. While the holder confirmation is still current, approve **Mark as Used** and wait for the confirmed transaction before showing the used state.
 10. Reopen the same QR verification URL and show **Already used / Entry denied**.
 11. With a separate concert, demonstrate cancellation: reject once, then confirm it; show QR expiry and Gate denial without marking the ticket used.
 12. Open the relevant transaction or NFT proof on Sepolia Etherscan.
