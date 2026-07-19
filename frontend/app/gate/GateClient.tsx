@@ -30,6 +30,7 @@ import { sepoliaNftUrl, shortAddress } from "@/lib/format";
 import {
   createGateHolderChallengeUrl,
   isGateHolderConfirmationCurrent,
+  isGateHolderMarkPreflightEligible,
   type GateHolderConfirmation
 } from "@/lib/gateHolderGate";
 import {
@@ -76,6 +77,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
   const [result, setResult] = useState<Verification | null>(null);
   const [checking, setChecking] = useState(false);
   const [checkingProof, setCheckingProof] = useState(false);
+  const [markingBusy, setMarkingBusy] = useState(false);
   const [localError, setLocalError] = useState("");
   const [recorded, setRecorded] = useState(false);
   const [ticketScannerOpen, setTicketScannerOpen] = useState(false);
@@ -88,6 +90,11 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
   const consumedNoncesRef = useRef(new Set<string>());
   const activeChallengeKeyRef = useRef("");
   const lookupRequestIdRef = useRef(0);
+  const proofRequestIdRef = useRef(0);
+  const tokenIdRef = useRef(initialTokenId);
+  const writeBusyRef = useRef(false);
+  const transactionBusyRef = useRef(transactionBusy);
+  transactionBusyRef.current = transactionBusy;
 
   const decision = useMemo(() => result ? getGateDecision(result) : null, [result]);
   const challengeKey = useMemo(
@@ -108,7 +115,8 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
     ticketValid: Boolean(result?.valid),
     now
   });
-  const canMarkAsUsed = Boolean(isOwner && !transactionBusy && result?.valid && holderConfirmed);
+  const gateWriteBusy = markingBusy || transactionBusy;
+  const canMarkAsUsed = Boolean(isOwner && !gateWriteBusy && result?.valid && holderConfirmed);
 
   useEffect(() => setOrigin(window.location.origin), []);
 
@@ -125,8 +133,15 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
     setProofScannerOpen(false);
   }, [activeChallenge, now]);
 
+  useEffect(() => {
+    if (!transactionBusy) return;
+    setTicketScannerOpen(false);
+    setProofScannerOpen(false);
+  }, [transactionBusy]);
+
   const clearHolderProof = useCallback(() => {
     activeChallengeKeyRef.current = "";
+    proofRequestIdRef.current += 1;
     setActiveChallenge(null);
     setHolderConfirmation(null);
     setProofRejection(null);
@@ -137,6 +152,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
   const activateChallenge = useCallback((challenge: GateHolderChallenge) => {
     const nextChallengeKey = getGateHolderChallengeKey(challenge);
     activeChallengeKeyRef.current = nextChallengeKey;
+    proofRequestIdRef.current += 1;
     setActiveChallenge(challenge);
     setHolderConfirmation(null);
     setProofRejection(null);
@@ -146,6 +162,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
   }, []);
 
   const checkTicketForToken = useCallback(async (value: string) => {
+    if (writeBusyRef.current || transactionBusyRef.current) return;
     const requestId = ++lookupRequestIdRef.current;
     setLocalError("");
     setRecorded(false);
@@ -155,6 +172,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
     setChecking(true);
     try {
       const normalizedTokenId = normalizeTokenId(value);
+      tokenIdRef.current = normalizedTokenId;
       setTokenId(normalizedTokenId);
       const nextResult = await verifyTicket(normalizedTokenId);
       if (lookupRequestIdRef.current !== requestId) return;
@@ -183,6 +201,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
 
   const changeTokenId = useCallback((value: string) => {
     lookupRequestIdRef.current += 1;
+    tokenIdRef.current = value;
     setTokenId(value);
     setResult(null);
     setRecorded(false);
@@ -192,15 +211,17 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
   }, [clearHolderProof]);
 
   const handleTicketScanned = useCallback((scannedTokenId: string) => {
+    if (writeBusyRef.current || transactionBusyRef.current) return;
     setTicketScannerOpen(false);
     void checkTicketForToken(scannedTokenId);
   }, [checkTicketForToken]);
 
   const checkReturnedProof = useCallback(async (payload: string) => {
-    if (!activeChallenge) return;
+    if (!activeChallenge || writeBusyRef.current || transactionBusyRef.current) return;
 
     const capturedChallenge = activeChallenge;
     const capturedChallengeKey = getGateHolderChallengeKey(capturedChallenge);
+    const proofRequestId = ++proofRequestIdRef.current;
     setProofScannerOpen(false);
     setHolderConfirmation(null);
     setProofRejection(null);
@@ -210,7 +231,12 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
     try {
       // Ownership and validity must be fresh before the local proof is parsed or trusted.
       const latestResult = await verifyTicket(capturedChallenge.tokenId);
-      if (activeChallengeKeyRef.current !== capturedChallengeKey) return;
+      if (
+        activeChallengeKeyRef.current !== capturedChallengeKey ||
+        proofRequestIdRef.current !== proofRequestId ||
+        writeBusyRef.current ||
+        transactionBusyRef.current
+      ) return;
       setResult(latestResult);
 
       if (!latestResult.valid) {
@@ -228,7 +254,12 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
         usedNonces: consumedNoncesRef.current,
         now: Date.now()
       });
-      if (activeChallengeKeyRef.current !== capturedChallengeKey) return;
+      if (
+        activeChallengeKeyRef.current !== capturedChallengeKey ||
+        proofRequestIdRef.current !== proofRequestId ||
+        writeBusyRef.current ||
+        transactionBusyRef.current
+      ) return;
 
       if (!validation.ok) {
         setProofRejection({ challengeKey: capturedChallengeKey, message: getProofRejectionMessage(validation.code) });
@@ -238,7 +269,12 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
       consumedNoncesRef.current.add(capturedChallenge.nonce);
       setHolderConfirmation({ challengeKey: capturedChallengeKey, signer: validation.signer });
     } catch (err) {
-      if (activeChallengeKeyRef.current === capturedChallengeKey) {
+      if (
+        activeChallengeKeyRef.current === capturedChallengeKey &&
+        proofRequestIdRef.current === proofRequestId &&
+        !writeBusyRef.current &&
+        !transactionBusyRef.current
+      ) {
         const message = getFriendlyError(err, "The ticket could not be re-read from Sepolia.");
         setProofRejection({
           challengeKey: capturedChallengeKey,
@@ -246,38 +282,117 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
         });
       }
     } finally {
-      if (activeChallengeKeyRef.current === capturedChallengeKey) setCheckingProof(false);
+      if (proofRequestIdRef.current === proofRequestId) setCheckingProof(false);
     }
   }, [activeChallenge, verifyTicket]);
 
   const useTicket = async () => {
-    const proofIsCurrent = isGateHolderConfirmationCurrent({
-      challenge: activeChallenge,
-      challengeKey,
-      confirmation: holderConfirmation,
-      tokenId: result?.tokenId.toString() || tokenId,
-      ticketValid: Boolean(result?.valid),
-      now: Date.now()
-    });
-    if (!result?.valid || !proofIsCurrent || !isOwner || transactionBusy) return;
+    if (
+      !activeChallenge ||
+      !holderConfirmation ||
+      !result?.valid ||
+      !isOwner ||
+      writeBusyRef.current ||
+      transactionBusyRef.current
+    ) return;
 
-    const capturedTokenId = tokenId;
-    const capturedViewRequestId = lookupRequestIdRef.current;
-    const confirmed = await markAsUsed(capturedTokenId);
-    if (!confirmed) return;
-    if (lookupRequestIdRef.current !== capturedViewRequestId) return;
+    const capturedChallenge = activeChallenge;
+    const capturedChallengeKey = getGateHolderChallengeKey(capturedChallenge);
+    const capturedConfirmation = holderConfirmation;
+    const capturedTokenId = result.tokenId.toString();
+    const markViewRequestId = ++lookupRequestIdRef.current;
+    proofRequestIdRef.current += 1;
+    writeBusyRef.current = true;
+    setMarkingBusy(true);
+    setTicketScannerOpen(false);
+    setProofScannerOpen(false);
+    setCheckingProof(false);
+    setLocalError("");
 
-    clearHolderProof();
     try {
-      const refreshed = await verifyTicket(capturedTokenId);
-      if (lookupRequestIdRef.current !== capturedViewRequestId) return;
-      setResult(refreshed);
-      setRecorded(true);
-    } catch (err) {
-      if (lookupRequestIdRef.current === capturedViewRequestId) {
-        setResult(null);
-        setLocalError(getFriendlyError(err, "Ticket was marked as used, but the gate result could not be refreshed."));
+      let latestResult: Verification;
+      try {
+        latestResult = await verifyTicket(capturedTokenId);
+      } catch (err) {
+        if (
+          lookupRequestIdRef.current === markViewRequestId &&
+          activeChallengeKeyRef.current === capturedChallengeKey
+        ) {
+          setHolderConfirmation(null);
+          setProofRejection({
+            challengeKey: capturedChallengeKey,
+            message: "Proof rejected: the latest owner and ticket validity could not be rechecked before entry."
+          });
+          setLocalError(getFriendlyError(err, "Owner preflight failed. No Mark as Used transaction was sent."));
+        }
+        return;
       }
+
+      if (
+        lookupRequestIdRef.current !== markViewRequestId ||
+        activeChallengeKeyRef.current !== capturedChallengeKey
+      ) return;
+
+      setResult(latestResult);
+      const preflightEligible = isGateHolderMarkPreflightEligible({
+        challenge: capturedChallenge,
+        challengeKey: capturedChallengeKey,
+        confirmation: capturedConfirmation,
+        tokenId: capturedTokenId,
+        ticketValid: latestResult.valid,
+        latestOwner: latestResult.owner,
+        now: Date.now()
+      });
+
+      if (!preflightEligible) {
+        setHolderConfirmation(null);
+        setProofRejection({
+          challengeKey: capturedChallengeKey,
+          message: !latestResult.valid
+            ? "Proof rejected: the latest Sepolia read says this ticket is no longer valid for entry."
+            : latestResult.owner.toLowerCase() !== capturedConfirmation.signer.toLowerCase()
+              ? "Proof rejected: ownership changed after confirmation. Issue a new challenge for the latest owner."
+              : "Proof rejected: the holder confirmation is no longer current. Issue a new challenge."
+        });
+        return;
+      }
+
+      const confirmed = await markAsUsed(capturedTokenId);
+      if (!confirmed) return;
+
+      let displayedTokenMatches = false;
+      try {
+        displayedTokenMatches = normalizeTokenId(tokenIdRef.current) === capturedTokenId;
+      } catch {
+        // A genuinely different or malformed token view must not be overwritten.
+      }
+      if (!displayedTokenMatches) return;
+
+      const refreshRequestId = ++lookupRequestIdRef.current;
+      clearHolderProof();
+      try {
+        const refreshed = await verifyTicket(capturedTokenId);
+        if (
+          lookupRequestIdRef.current !== refreshRequestId ||
+          normalizeTokenId(tokenIdRef.current) !== capturedTokenId
+        ) return;
+        setResult(refreshed);
+        setRecorded(true);
+      } catch (err) {
+        let stillShowingMarkedToken = false;
+        try {
+          stillShowingMarkedToken = normalizeTokenId(tokenIdRef.current) === capturedTokenId;
+        } catch {
+          // Do not overwrite a different token view.
+        }
+        if (lookupRequestIdRef.current === refreshRequestId && stillShowingMarkedToken) {
+          setResult(null);
+          setLocalError(getFriendlyError(err, "Ticket was marked as used, but the gate result could not be refreshed."));
+        }
+      }
+    } finally {
+      writeBusyRef.current = false;
+      setMarkingBusy(false);
     }
   };
 
@@ -333,7 +448,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
             <ScanLine size={22} />
           </div>
           <FormInput label="Token ID" value={tokenId} inputMode="numeric" placeholder="Scan or enter token ID" onChange={changeTokenId} />
-          <button className="secondary-button full" onClick={() => setTicketScannerOpen((open) => !open)} disabled={checking}>
+          <button className="secondary-button full" onClick={() => setTicketScannerOpen((open) => !open)} disabled={checking || gateWriteBusy}>
             <Camera size={17} /> {ticketScannerOpen ? "Close ticket scanner" : "Scan ticket QR"}
           </button>
           {ticketScannerOpen ? (
@@ -343,7 +458,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
               onScanned={handleTicketScanned}
             />
           ) : null}
-          <button className="secondary-button full" onClick={() => void checkTicket()} disabled={!tokenId || checking}>
+          <button className="secondary-button full" onClick={() => void checkTicket()} disabled={!tokenId || checking || gateWriteBusy}>
             <DoorOpen size={17} /> {checking ? "Checking Sepolia…" : "Check Ticket"}
           </button>
           <button
@@ -351,7 +466,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
             onClick={() => void useTicket()}
             disabled={!canMarkAsUsed}
           >
-            <CheckCircle2 size={17} /> Mark as Used
+            <CheckCircle2 size={17} /> {markingBusy ? "Rechecking owner…" : "Mark as Used"}
           </button>
           {!holderConfirmed && result?.valid ? <p className="helper-copy">Mark as Used stays locked until the active holder challenge is confirmed.</p> : null}
           {!address ? <p className="helper-copy">Ticket lookup and proof validation are public. Connect the contract-owner organizer wallet only for the final on-chain write.</p> : null}
@@ -423,7 +538,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
                         <button
                           className="secondary-button full"
                           onClick={() => setProofScannerOpen((open) => !open)}
-                          disabled={checkingProof || challengeExpired}
+                          disabled={checkingProof || challengeExpired || gateWriteBusy}
                         >
                           <Camera size={17} /> {checkingProof ? "Rechecking Sepolia…" : proofScannerOpen ? "Close proof scanner" : holderConfirmed ? "Scan proof again" : "Scan holder proof"}
                         </button>
@@ -448,7 +563,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
                     </div>
 
                     {challengeExpired || rejectionMessage ? (
-                      <button className="secondary-button" onClick={() => void checkTicketForToken(result.tokenId.toString())} disabled={checking}>
+                      <button className="secondary-button" onClick={() => void checkTicketForToken(result.tokenId.toString())} disabled={checking || gateWriteBusy}>
                         <RefreshCw size={17} /> {checking ? "Rechecking Sepolia…" : "Recheck ticket & issue new challenge"}
                       </button>
                     ) : null}

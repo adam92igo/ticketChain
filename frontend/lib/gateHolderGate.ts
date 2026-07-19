@@ -41,3 +41,15 @@ export function isGateHolderConfirmationCurrent({
     return false;
   }
 }
+
+export function isGateHolderMarkPreflightEligible({
+  latestOwner,
+  ...confirmationArgs
+}: Parameters<typeof isGateHolderConfirmationCurrent>[0] & { latestOwner: string }): boolean {
+  const { confirmation } = confirmationArgs;
+  return Boolean(
+    confirmation &&
+    isGateHolderConfirmationCurrent(confirmationArgs) &&
+    confirmation.signer.toLowerCase() === latestOwner.toLowerCase()
+  );
+}

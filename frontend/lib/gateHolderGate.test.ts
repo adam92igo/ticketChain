@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { getGateHolderChallengeKey, type GateHolderChallenge } from "./gateHolderProof.ts";
-import { createGateHolderChallengeUrl, isGateHolderConfirmationCurrent } from "./gateHolderGate.ts";
+import {
+  createGateHolderChallengeUrl,
+  isGateHolderConfirmationCurrent,
+  isGateHolderMarkPreflightEligible
+} from "./gateHolderGate.ts";
 
 const challenge: GateHolderChallenge = {
   tokenId: "42",
@@ -53,4 +57,28 @@ test("requires valid ticket state and a matching unexpired confirmation", () => 
   assert.equal(isGateHolderConfirmationCurrent({ ...base, now: challenge.expiresAt }), false);
   assert.equal(isGateHolderConfirmationCurrent({ ...base, confirmation: { ...confirmation, challengeKey: "old" } }), false);
   assert.equal(isGateHolderConfirmationCurrent({ ...base, confirmation: null }), false);
+});
+
+test("allows mark preflight only when the confirmed signer is still the latest owner", () => {
+  const confirmation = {
+    challengeKey: getGateHolderChallengeKey(challenge),
+    signer: "0x2222222222222222222222222222222222222222"
+  };
+  const base = {
+    challenge,
+    challengeKey: confirmation.challengeKey,
+    confirmation,
+    tokenId: "42",
+    ticketValid: true,
+    now: challenge.expiresAt - 1,
+    latestOwner: "0x2222222222222222222222222222222222222222"
+  };
+
+  assert.equal(isGateHolderMarkPreflightEligible(base), true);
+  assert.equal(isGateHolderMarkPreflightEligible({
+    ...base,
+    latestOwner: "0x3333333333333333333333333333333333333333"
+  }), false);
+  assert.equal(isGateHolderMarkPreflightEligible({ ...base, ticketValid: false }), false);
+  assert.equal(isGateHolderMarkPreflightEligible({ ...base, now: challenge.expiresAt }), false);
 });
