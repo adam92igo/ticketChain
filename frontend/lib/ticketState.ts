@@ -5,7 +5,7 @@ export function normalizeTokenId(value: string) {
   if (!/^\d+$/.test(normalized)) {
     throw new Error("Enter a numeric token ID.");
   }
-  return normalized;
+  return BigInt(normalized).toString();
 }
 
 export function getTicketStatus(ticket: { concertActive: boolean; used: boolean; listed: boolean }): {

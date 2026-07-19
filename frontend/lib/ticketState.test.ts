@@ -7,8 +7,9 @@ import {
   normalizeTokenId
 } from "./ticketState.ts";
 
-test("normalizeTokenId accepts digits and removes surrounding whitespace", () => {
+test("normalizeTokenId accepts digits and returns canonical decimal text", () => {
   assert.equal(normalizeTokenId(" 42 "), "42");
+  assert.equal(normalizeTokenId(" 001 "), "1");
 });
 
 test("normalizeTokenId rejects missing and non-numeric values with the demo message", () => {
