@@ -200,6 +200,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
   }, [initialTokenId, checkTicketForToken]);
 
   const changeTokenId = useCallback((value: string) => {
+    if (writeBusyRef.current || transactionBusyRef.current) return;
     lookupRequestIdRef.current += 1;
     tokenIdRef.current = value;
     setTokenId(value);
@@ -447,7 +448,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
             <div><p className="eyebrow">Entrance staff</p><h2>Identify the ticket</h2></div>
             <ScanLine size={22} />
           </div>
-          <FormInput label="Token ID" value={tokenId} inputMode="numeric" placeholder="Scan or enter token ID" onChange={changeTokenId} />
+          <FormInput label="Token ID" value={tokenId} inputMode="numeric" placeholder="Scan or enter token ID" onChange={changeTokenId} disabled={gateWriteBusy} />
           <button className="secondary-button full" onClick={() => setTicketScannerOpen((open) => !open)} disabled={checking || gateWriteBusy}>
             <Camera size={17} /> {ticketScannerOpen ? "Close ticket scanner" : "Scan ticket QR"}
           </button>
