@@ -4,6 +4,7 @@ import { Wallet } from "ethers";
 import {
   createGateHolderChallenge,
   createGateHolderProofMessage,
+  getGateHolderChallengeKey,
   serializeGateHolderProof,
   validateGateHolderProof
 } from "./gateHolderProof.ts";
@@ -41,6 +42,16 @@ test("creates a five-minute challenge with a 32-byte nonce and deterministic mes
     `Nonce: ${challenge.nonce}`,
     `Expires At: ${challenge.expiresAt}`
   ].join("\n"));
+});
+
+test("derives a canonical key that changes with the signed challenge", () => {
+  const challenge = createChallenge();
+
+  assert.equal(getGateHolderChallengeKey(challenge), createGateHolderProofMessage(challenge));
+  assert.notEqual(
+    getGateHolderChallengeKey({ ...challenge, nonce: "b".repeat(64) }),
+    getGateHolderChallengeKey(challenge)
+  );
 });
 
 test("validates a proof signed by the current owner", async () => {

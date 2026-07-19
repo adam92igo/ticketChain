@@ -41,7 +41,7 @@ export function createGateHolderChallenge({
 }
 
 export function createGateHolderProofMessage(challenge: GateHolderChallenge): string {
-  const normalized = normalizeChallenge(challenge);
+  const normalized = normalizeGateHolderChallenge(challenge);
   return [
     "TicketChain Gate Holder Proof",
     `Contract: ${normalized.contractAddress}`,
@@ -52,9 +52,52 @@ export function createGateHolderProofMessage(challenge: GateHolderChallenge): st
   ].join("\n");
 }
 
+export function getGateHolderChallengeKey(challenge: GateHolderChallenge): string {
+  return createGateHolderProofMessage(challenge);
+}
+
 export function serializeGateHolderProof(proof: GateHolderProof): string {
   const normalized = normalizeProof(proof);
   return JSON.stringify(normalized);
+}
+
+export function normalizeGateHolderChallenge(challenge: GateHolderChallenge): GateHolderChallenge {
+  return normalizeChallenge(challenge);
+}
+
+export function parseGateHolderChallengeQuery(
+  params: Record<string, string | string[] | undefined>
+): GateHolderChallenge | null {
+  const tokenId = getSingleQueryParam(params, "tokenId");
+  const contractAddress = getSingleQueryParam(params, "contractAddress");
+  const chainId = getSingleQueryParam(params, "chainId");
+  const nonce = getSingleQueryParam(params, "nonce");
+  const expiresAt = getSingleQueryParam(params, "expiresAt");
+
+  if (
+    !tokenId ||
+    !contractAddress ||
+    !chainId ||
+    !nonce ||
+    !expiresAt ||
+    !/^\d+$/.test(tokenId) ||
+    !/^\d+$/.test(chainId) ||
+    !/^\d+$/.test(expiresAt)
+  ) {
+    return null;
+  }
+
+  try {
+    return normalizeGateHolderChallenge({
+      tokenId,
+      contractAddress,
+      chainId: Number(chainId),
+      nonce,
+      expiresAt: Number(expiresAt)
+    });
+  } catch {
+    return null;
+  }
 }
 
 export function validateGateHolderProof({
@@ -179,4 +222,12 @@ function normalizeSignature(value: unknown): string {
     throw new Error("Signature is invalid.");
   }
   return value;
+}
+
+function getSingleQueryParam(
+  params: Record<string, string | string[] | undefined>,
+  key: string
+): string | null {
+  const value = params[key];
+  return typeof value === "string" ? value : null;
 }

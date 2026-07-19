@@ -1500,6 +1500,60 @@ dd.address-value {
   margin-bottom: 3px;
 }
 
+.holder-proof-panel {
+  display: grid;
+  gap: 16px;
+  margin: 14px 0 17px;
+  border: 1px solid rgba(16, 19, 31, 0.14);
+  border-radius: 11px;
+  padding: 15px;
+}
+
+.holder-proof-panel.pending {
+  border-color: rgba(192, 128, 39, 0.35);
+  background: var(--amber-soft);
+}
+
+.holder-proof-panel.confirmed {
+  border-color: rgba(15, 118, 110, 0.35);
+  background: var(--teal-soft);
+}
+
+.holder-proof-copy {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.holder-proof-copy > svg {
+  flex: 0 0 auto;
+  color: var(--teal);
+}
+
+.holder-proof-copy .eyebrow {
+  margin-bottom: 3px;
+}
+
+.holder-proof-copy p:last-child,
+.holder-proof-qr p {
+  margin-bottom: 0;
+}
+
+.holder-proof-qr {
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  border: 1px dashed rgba(16, 19, 31, 0.28);
+  border-radius: 9px;
+  padding: 13px;
+  background: #fffdf8;
+  color: var(--muted);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
 .ownership-proof p:last-child {
   margin: 4px 0 0;
   color: var(--muted);
