@@ -1333,6 +1333,11 @@ dd.address-value {
 .gate-purpose-note svg { flex: 0 0 auto; color: var(--violet); }
 .gate-purpose-note p { margin: 0; }
 
+.gate-console {
+  grid-template-columns: minmax(255px, 0.62fr) minmax(0, 1.75fr);
+  align-items: start;
+}
+
 .gate-controls .primary-button {
   margin-top: 9px;
 }
@@ -1357,6 +1362,9 @@ dd.address-value {
 .scan-result.approved { background: var(--teal-soft); }
 .gate-result.denied,
 .scan-result.denied { background: var(--coral-soft); }
+.gate-result.waiting { background: var(--amber-soft); }
+.gate-result.rejected { background: var(--coral-soft); }
+.gate-result.confirmed { background: var(--teal-soft); }
 
 .gate-result-icon,
 .scan-icon {
@@ -1375,6 +1383,9 @@ dd.address-value {
 .approved .scan-icon { background: var(--teal); color: #fff; }
 .denied .gate-result-icon,
 .denied .scan-icon { background: var(--coral); color: #fff; }
+.waiting .gate-result-icon { background: var(--amber); color: #fff; }
+.rejected .gate-result-icon { background: var(--coral); color: #fff; }
+.confirmed .gate-result-icon { background: var(--teal); color: #fff; }
 
 .gate-result-copy,
 .scan-result > div:last-child {
@@ -1384,6 +1395,175 @@ dd.address-value {
 .gate-result h2,
 .scan-result h2 {
   margin-bottom: 8px;
+}
+
+.gate-holder-handoff {
+  margin: 19px 0 5px;
+  border: 1px solid rgba(16, 19, 31, 0.16);
+  border-top-width: 5px;
+  border-radius: 13px;
+  padding: clamp(14px, 2.4vw, 22px);
+  background: #fffdf8;
+  box-shadow: var(--small-shadow);
+}
+
+.gate-holder-handoff.waiting { border-top-color: var(--amber); }
+.gate-holder-handoff.rejected { border-top-color: var(--coral); }
+.gate-holder-handoff.confirmed { border-top-color: var(--teal); }
+
+.gate-handoff-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--line);
+}
+
+.gate-handoff-heading h3,
+.gate-handoff-heading p {
+  margin-bottom: 0;
+}
+
+.gate-handoff-track {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 13px;
+  padding: 17px 0;
+}
+
+.gate-handoff-step {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-content: start;
+  align-items: start;
+  gap: 9px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 13px;
+  background: #f7f4ec;
+}
+
+.gate-handoff-step > svg {
+  margin-top: 2px;
+  color: var(--violet);
+}
+
+.gate-handoff-step p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.gate-step-number {
+  color: var(--violet);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 23px;
+}
+
+.gate-challenge-qr,
+.gate-challenge-expired,
+.gate-handoff-step > .secondary-button,
+.gate-handoff-step > .gate-scanner-panel {
+  grid-column: 1 / -1;
+}
+
+.gate-challenge-qr {
+  display: grid;
+  place-items: center;
+  margin-top: 4px;
+  border: 1px dashed rgba(16, 19, 31, 0.28);
+  border-radius: 9px;
+  padding: 10px;
+  background: #fff;
+}
+
+.gate-challenge-qr svg {
+  width: min(210px, 100%);
+  height: auto;
+}
+
+.gate-challenge-expired {
+  min-height: 210px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 7px;
+  margin-top: 4px;
+  border: 1px dashed rgba(202, 75, 79, 0.45);
+  border-radius: 9px;
+  background: var(--coral-soft);
+  color: var(--coral);
+  text-align: center;
+}
+
+.gate-handoff-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--violet);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+}
+
+.gate-handoff-arrow span:last-child {
+  font-size: 24px;
+  writing-mode: horizontal-tb;
+}
+
+.gate-proof-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 10px;
+  padding: 13px;
+  background: var(--amber-soft);
+}
+
+.gate-holder-handoff.rejected .gate-proof-status {
+  background: var(--coral-soft);
+  color: #8d3437;
+}
+
+.gate-holder-handoff.confirmed .gate-proof-status {
+  background: var(--teal-soft);
+  color: #0c655f;
+}
+
+.gate-proof-status svg {
+  flex: 0 0 auto;
+}
+
+.gate-proof-status p {
+  margin: 3px 0 0;
+  color: inherit;
+  font-size: 13px;
+}
+
+.gate-holder-handoff > .secondary-button {
+  margin-top: 12px;
+}
+
+.gate-origin-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.gate-origin-note span {
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 800;
 }
 
 .result-summary-row {
@@ -1498,6 +1678,60 @@ dd.address-value {
 
 .ownership-proof .eyebrow {
   margin-bottom: 3px;
+}
+
+.holder-proof-panel {
+  display: grid;
+  gap: 16px;
+  margin: 14px 0 17px;
+  border: 1px solid rgba(16, 19, 31, 0.14);
+  border-radius: 11px;
+  padding: 15px;
+}
+
+.holder-proof-panel.pending {
+  border-color: rgba(192, 128, 39, 0.35);
+  background: var(--amber-soft);
+}
+
+.holder-proof-panel.confirmed {
+  border-color: rgba(15, 118, 110, 0.35);
+  background: var(--teal-soft);
+}
+
+.holder-proof-copy {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.holder-proof-copy > svg {
+  flex: 0 0 auto;
+  color: var(--teal);
+}
+
+.holder-proof-copy .eyebrow {
+  margin-bottom: 3px;
+}
+
+.holder-proof-copy p:last-child,
+.holder-proof-qr p {
+  margin-bottom: 0;
+}
+
+.holder-proof-qr {
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  border: 1px dashed rgba(16, 19, 31, 0.28);
+  border-radius: 9px;
+  padding: 13px;
+  background: #fffdf8;
+  color: var(--muted);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
 }
 
 .ownership-proof p:last-child {
@@ -1837,6 +2071,24 @@ dd.address-value {
   .gate-result,
   .scan-result {
     flex-direction: column;
+  }
+
+  .gate-handoff-heading {
+    flex-direction: column;
+  }
+
+  .gate-handoff-track {
+    grid-template-columns: 1fr;
+  }
+
+  .gate-handoff-arrow {
+    min-height: 38px;
+    flex-direction: row;
+    writing-mode: horizontal-tb;
+  }
+
+  .gate-handoff-arrow span:last-child {
+    transform: rotate(90deg);
   }
 
   .gate-display,
