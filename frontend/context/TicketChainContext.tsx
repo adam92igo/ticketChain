@@ -145,8 +145,8 @@ export function TicketChainProvider({ children }: { children: ReactNode }) {
     }
 
     setOwner(contractOwner);
-    setConcerts(loadedConcerts);
-    setMyTickets(loadedTickets);
+    setConcerts(loadedConcerts.filter((concert) => concert.active));
+    setMyTickets(loadedTickets.filter((ticket) => ticket.concertActive));
   }, []);
 
   const synchronizeWallet = useCallback(async () => {
