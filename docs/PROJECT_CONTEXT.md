@@ -6,7 +6,7 @@ TicketChain demonstrates how a shared on-chain ticket record can reduce forgery,
 
 Each concert ticket is an ERC-721 NFT. Its contract state connects the ticket to a concert, current owner, maximum resale price, listing state, one-time usage state, and concert active state. The frontend turns those rules into a presentation-ready flow on Ethereum Sepolia.
 
-The intended two-profile demo story requires a cancellation-compatible Sepolia deployment; manual MetaMask validation remains part of the demonstration:
+The intended two-profile demo story runs on a live cancellation-compatible Sepolia deployment (`0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259`, see section 4); full manual MetaMask validation of every flow remains part of the demonstration:
 
 1. The organizer profile creates a concert and selects it in `/organizer`.
 2. After a confirmed partner sale, the organizer signs the real issuance transaction to the buyer wallet. This is an explicit MVP stand-in for a production partner webhook, not a backend integration.
@@ -55,7 +55,20 @@ Cancellation is an alternative terminal event: `cancelConcert` preserves the con
 
 `getConcertTicketIds(concertId)` is a per-concert read used by the organizer portal. It returns the IDs issued for that concert, then the frontend reads each ticket's current state. The contract does not record whether issuance came from `buyTicket` or `mintTicket`, so the portal must not infer an issuance source.
 
-## 4. Legacy Historical Deployment
+## 4. Sepolia Deployments
+
+### 4.1 Current Compatible Deployment
+
+~~~text
+Network: Ethereum Sepolia
+Chain ID: 11155111
+Contract: 0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259
+Etherscan: https://sepolia.etherscan.io/address/0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259
+~~~
+
+Includes `cancelConcert`, `concertActive`, and `getConcertTicketIds`. Confirmed live with real Sepolia transactions (concert creation, ticket minting). Full manual validation of resale, the gate holder-proof round-trip, and cancellation is still in progress.
+
+### 4.2 Legacy Historical Deployment
 
 ~~~text
 Network: Ethereum Sepolia

@@ -4,7 +4,7 @@
 
 TicketChain is a working blockchain ticketing MVP that represents each concert ticket as an ERC-721 NFT. The application demonstrates partner-confirmed issuance, client ownership, concert-scoped capped resale and transfer, public QR verification, cancellation expiry, gate control, and one-time usage on Ethereum Sepolia.
 
-**Status:** functional academic MVP. The cancellation, partner-sale, and concert-scoped resale revision requires its own compatible Sepolia deployment; older public deployments cannot demonstrate cancellation expiry. It was created for the BTS FinTech Summer School and is not production-ready software.
+**Status:** functional academic MVP. The cancellation, partner-sale, and concert-scoped resale revision is live on a compatible Sepolia deployment (see section 10); older public deployments cannot demonstrate cancellation expiry. It was created for the BTS FinTech Summer School and is not production-ready software.
 
 ## 1. Quick Start
 
@@ -21,9 +21,11 @@ cp frontend/.env.example frontend/.env.local
 Set the following public frontend configuration in **frontend/.env.local**:
 
 ~~~env
-NEXT_PUBLIC_CONTRACT_ADDRESS=0xYOUR_CANCELLATION_COMPATIBLE_CONTRACT_ADDRESS
+NEXT_PUBLIC_CONTRACT_ADDRESS=0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259
 NEXT_PUBLIC_CHAIN_ID=11155111
 ~~~
+
+The address above is the current compatible public deployment (see section 10). Substitute a personal deployment's address instead if you completed **Deploying a Personal Contract** (section 11).
 
 Start the application:
 
@@ -206,7 +208,22 @@ Security rules:
 - Both local environment files are ignored by Git.
 - Restart the frontend after changing **frontend/.env.local**.
 
-## 10. Legacy Historical Sepolia Deployment
+## 10. Sepolia Deployments
+
+### 10.1 Current Compatible Deployment
+
+~~~text
+Network: Ethereum Sepolia
+Chain ID: 11155111
+Contract address: 0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259
+Etherscan: https://sepolia.etherscan.io/address/0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259
+~~~
+
+[Open the current TicketChain contract on Sepolia Etherscan](https://sepolia.etherscan.io/address/0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259).
+
+This is the **cancellation-compatible deployment** for this revision: it includes `cancelConcert`, `concertActive` verification data, and `getConcertTicketIds`, and already carries real Sepolia transactions (concert creation and ticket minting), confirming the deployment itself is live and reachable. Full end-to-end MetaMask validation of every flow (resale between two wallets, the gate holder-proof round-trip, and concert cancellation) is still in progress — see the manual test guide in section 13. The deployment private key is not public and must never be shared.
+
+### 10.2 Legacy Historical Deployment
 
 ~~~text
 Network: Ethereum Sepolia
@@ -250,7 +267,7 @@ Deploy:
 npm run deploy:sepolia
 ~~~
 
-The deployment script prints the new contract address and its Sepolia Etherscan link. This cancellation-compatible deployment is required after the `cancelConcert` contract change; do not reuse a previous address. Copy the new address into **frontend/.env.local**:
+The deployment script prints the new contract address and its Sepolia Etherscan link. Deploy your own only if you need a contract you fully control (e.g. to test owner-only actions); otherwise the current compatible deployment in section 10.1 already works. Do not reuse the legacy address. Copy the new address into **frontend/.env.local**:
 
 ~~~env
 NEXT_PUBLIC_CONTRACT_ADDRESS=0xYOUR_NEW_CONTRACT_ADDRESS
