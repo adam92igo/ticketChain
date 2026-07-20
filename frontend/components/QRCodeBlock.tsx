@@ -6,6 +6,7 @@ import { Copy, ExternalLink } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { CONTRACT_ADDRESS } from "@/config/app";
 import { sepoliaNftUrl } from "@/lib/format";
+import { resolvePublicOrigin } from "@/lib/publicOrigin";
 
 export function QRCodeBlock({ tokenId }: { tokenId: bigint }) {
   const [origin, setOrigin] = useState("");
@@ -13,7 +14,7 @@ export function QRCodeBlock({ tokenId }: { tokenId: bigint }) {
   const path = `/verify?tokenId=${tokenId.toString()}`;
   const url = `${origin}${path}`;
 
-  useEffect(() => setOrigin(window.location.origin), []);
+  useEffect(() => setOrigin(resolvePublicOrigin(window.location.origin)), []);
 
   const copyLink = async () => {
     try {

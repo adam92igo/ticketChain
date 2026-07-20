@@ -1,6 +1,7 @@
 export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
 export const EXPECTED_CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID || "11155111");
 export const SEPOLIA_HEX_CHAIN_ID = "0xaa36a7";
+export const PUBLIC_APP_ORIGIN = (process.env.NEXT_PUBLIC_APP_ORIGIN || "").replace(/\/$/, "");
 
 export const clientNavigationItems = [
   { href: "/concerts", label: "Events" },

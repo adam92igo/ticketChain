@@ -28,6 +28,7 @@ import { CONTRACT_ADDRESS, EXPECTED_CHAIN_ID } from "@/config/app";
 import { useTicketChain } from "@/context/TicketChainContext";
 import { getFriendlyError } from "@/lib/errors";
 import { sepoliaNftUrl, shortAddress } from "@/lib/format";
+import { resolvePublicOrigin } from "@/lib/publicOrigin";
 import {
   createGateHolderChallengeUrl,
   isGateHolderConfirmationCurrent,
@@ -132,7 +133,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
     }
   }, [challengeUrl]);
 
-  useEffect(() => setOrigin(window.location.origin), []);
+  useEffect(() => setOrigin(resolvePublicOrigin(window.location.origin)), []);
 
   useEffect(() => {
     if (!activeChallenge) return;
