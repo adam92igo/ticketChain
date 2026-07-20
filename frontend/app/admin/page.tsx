@@ -3,7 +3,7 @@ import { ArrowRight, ShieldCheck, TicketPlus, ScanLine, Users } from "lucide-rea
 
 const adminActions = [
   {
-    href: "/concerts",
+    href: "/organizer",
     title: "Créer un concert et mint des tickets",
     description: "Accès organisateur pour ouvrir une nouvelle offre et préparer l’inventaire.",
     icon: TicketPlus
