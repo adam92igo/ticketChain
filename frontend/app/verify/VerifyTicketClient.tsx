@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, ExternalLink, QrCode, RefreshCw, ShieldCheck, Ticket, Wallet } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Copy, ExternalLink, QrCode, RefreshCw, ShieldCheck, Ticket, Wallet } from "lucide-react";
 import { ethers } from "ethers";
 import { QRCodeSVG } from "qrcode.react";
 import { FormInput } from "@/components/FormInput";
@@ -56,6 +56,7 @@ export default function VerifyTicketClient({ initialTokenId, challenge, hasChall
   const [proofError, setProofError] = useState<HolderProofErrorState | null>(null);
   const [activeRequest, setActiveRequest] = useState<HolderProofRequestState | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const [proofCopied, setProofCopied] = useState(false);
   const challengeKey = useMemo(() => challenge ? getGateHolderChallengeKey(challenge) : "", [challenge]);
   const activeChallengeKeyRef = useRef(challengeKey);
   const requestIdRef = useRef(0);
@@ -73,6 +74,17 @@ export default function VerifyTicketClient({ initialTokenId, challenge, hasChall
   const proofPayload = proof?.challengeKey === challengeKey ? proof.payload : "";
   const proofErrorMessage = proofError?.challengeKey === challengeKey ? proofError.message : "";
   const signing = activeRequest?.challengeKey === challengeKey;
+
+  const handleCopyProof = useCallback(async () => {
+    if (!proofPayload) return;
+    try {
+      await navigator.clipboard.writeText(proofPayload);
+      setProofCopied(true);
+      setTimeout(() => setProofCopied(false), 2000);
+    } catch {
+      // Clipboard access can be unavailable (permissions, insecure context); the QR code remains usable.
+    }
+  }, [proofPayload]);
 
   useEffect(() => {
     if (!challenge || !challengeMatchesApp || !challengeMatchesTicket) return;
@@ -234,8 +246,11 @@ export default function VerifyTicketClient({ initialTokenId, challenge, hasChall
                           </div>
                           {proofPayload && !challengeExpired ? (
                             <div className="holder-proof-qr">
-                              <QRCodeSVG value={proofPayload} size={232} level="H" marginSize={4} title={`Gate holder proof for TicketChain token ${challenge.tokenId}`} />
+                              <QRCodeSVG value={proofPayload} size={320} level="M" marginSize={4} title={`Gate holder proof for TicketChain token ${challenge.tokenId}`} />
                               <p>Present this QR before the challenge expires.</p>
+                              <button type="button" className="secondary-button full" onClick={() => void handleCopyProof()}>
+                                {proofCopied ? <><CheckCircle2 size={17} /> Proof copied</> : <><Copy size={17} /> Copy proof (if the QR won&apos;t scan)</>}
+                              </button>
                             </div>
                           ) : (
                             <button className="primary-button" onClick={() => void signHolderProof()} disabled={signing || challengeExpired}>

@@ -83,6 +83,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
   const [recorded, setRecorded] = useState(false);
   const [ticketScannerOpen, setTicketScannerOpen] = useState(false);
   const [proofScannerOpen, setProofScannerOpen] = useState(false);
+  const [pastedProof, setPastedProof] = useState("");
   const [activeChallenge, setActiveChallenge] = useState<GateHolderChallenge | null>(null);
   const [holderConfirmation, setHolderConfirmation] = useState<GateHolderConfirmation | null>(null);
   const [proofRejection, setProofRejection] = useState<ProofRejection | null>(null);
@@ -237,6 +238,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
     const capturedChallengeKey = getGateHolderChallengeKey(capturedChallenge);
     const proofRequestId = ++proofRequestIdRef.current;
     setProofScannerOpen(false);
+    setPastedProof("");
     setHolderConfirmation(null);
     setProofRejection(null);
     setLocalError("");
@@ -536,7 +538,7 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
                         <div><strong>Present challenge</strong><p>The holder opens this QR on the phone that has MetaMask.</p></div>
                         {!challengeExpired && challengeUrl ? (
                           <div className="gate-challenge-qr">
-                            <QRCodeSVG value={challengeUrl} size={210} level="H" marginSize={4} title={`Holder challenge for TicketChain token ${activeChallenge.tokenId}`} />
+                            <QRCodeSVG value={challengeUrl} size={260} level="M" marginSize={4} title={`Holder challenge for TicketChain token ${activeChallenge.tokenId}`} />
                             <button type="button" className="secondary-button full" onClick={handleCopyChallengeLink}>
                               {challengeLinkCopied ? <><CheckCircle2 size={17} /> Link copied</> : <><Copy size={17} /> Copy challenge link</>}
                             </button>
@@ -569,6 +571,28 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
                             onScanned={checkReturnedProof}
                           />
                         ) : null}
+                        <details className="gate-proof-paste">
+                          <summary>Or paste the proof text</summary>
+                          <p className="helper-copy">
+                            On the holder&apos;s device, tap &quot;Copy proof&quot; below the QR on the verify page, then paste it here if scanning the QR off a screen doesn&apos;t work.
+                          </p>
+                          <textarea
+                            className="gate-proof-textarea"
+                            rows={3}
+                            value={pastedProof}
+                            onChange={(event) => setPastedProof(event.target.value)}
+                            placeholder="Paste the copied proof text here"
+                            disabled={checkingProof || challengeExpired || gateWriteBusy}
+                          />
+                          <button
+                            type="button"
+                            className="secondary-button full"
+                            onClick={() => void checkReturnedProof(pastedProof.trim())}
+                            disabled={!pastedProof.trim() || checkingProof || challengeExpired || gateWriteBusy}
+                          >
+                            Check pasted proof
+                          </button>
+                        </details>
                       </div>
                     </div>
 

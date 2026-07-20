@@ -1483,8 +1483,34 @@ dd.address-value {
 }
 
 .gate-challenge-qr svg {
-  width: min(210px, 100%);
+  width: min(260px, 100%);
   height: auto;
+}
+
+.gate-proof-paste {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  border: 1px dashed rgba(16, 19, 31, 0.28);
+  border-radius: 9px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+.gate-proof-paste summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.gate-proof-textarea {
+  width: 100%;
+  margin: 8px 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(16, 19, 31, 0.2);
+  border-radius: 7px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 12px;
+  resize: vertical;
 }
 
 .gate-challenge-expired {
@@ -1717,6 +1743,11 @@ dd.address-value {
 .holder-proof-copy p:last-child,
 .holder-proof-qr p {
   margin-bottom: 0;
+}
+
+.holder-proof-qr svg {
+  width: min(320px, 100%);
+  height: auto;
 }
 
 .holder-proof-qr {
