@@ -115,7 +115,7 @@ Blockchain does not solve every ticketing problem:
 | **/tickets** | Connected wallet's ticket collection, resale listing, and transfer | Yes | No |
 | **/marketplace** | Selected-concert resale inspection and purchase | No account for inspection; account for purchase | No |
 | **/organizer** | Organizer profile: concert inventory, partner issuance, cancellation, and per-concert issued-ticket view | No account for reads; account for writes | Yes for create, issue, and cancel |
-| **/gate** | Organizer entrance-staff verification and owner-only mark-as-used | No account for checks; account for write action | Yes for mark-as-used |
+| **/gate** | Organizer entrance-staff ticket check, current holder-wallet proof, and owner-only mark-as-used | No account for checks; holder wallet for proof; organizer account for write action | Yes for final mark-as-used |
 | **/verify?tokenId=&lt;id&gt;** | Direct QR ticket verification | No connected account; MetaMask provider and Sepolia required | No |
 | **/demo** | Presentation scenario and recovery checklist | No | No |
 | **/about** | Product, lifecycle, and business explanation | No | No |
@@ -133,6 +133,7 @@ The current read contract is created from MetaMask's injected browser provider. 
 - React 19
 - ethers.js 6
 - qrcode.react
+- html5-qrcode
 - MetaMask
 - Ethereum Sepolia
 

@@ -11,7 +11,7 @@ Current compatible public deployment:
 ~~~text
 Network: Ethereum Sepolia
 Chain ID: 11155111
-Contract: 0x3f311ab156d94233B71Bb40E93Cea4dFc269BF3b
+Contract: 0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259
 ~~~
 
 The former `0xd4aFD3b8D2290412Bf4521eC462aEB7Fc0D20149` deployment is legacy and incompatible with `getConcertTicketIds`.
@@ -62,7 +62,7 @@ Route responsibilities:
 - **/concerts** — concert inventory, owner creation and minting, primary purchase.
 - **/tickets** — connected-wallet tickets, QR links, listing, and transfer.
 - **/marketplace** — exact-token listing inspection and resale purchase.
-- **/gate** — staff decision and owner-only mark-as-used.
+- **/gate** — organizer entrance decision: ticket identification, current holder-wallet proof, and owner-only mark-as-used.
 - **/verify?tokenId=&lt;id&gt;** — direct QR verification.
 - **/demo** — jury walkthrough and recovery checklist.
 - **/about** — product, lifecycle, and business context.
