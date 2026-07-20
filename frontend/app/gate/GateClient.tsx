@@ -8,6 +8,7 @@ import {
   Camera,
   CheckCircle2,
   Clock3,
+  Copy,
   DoorOpen,
   ExternalLink,
   QrCode,
@@ -117,6 +118,18 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
   });
   const gateWriteBusy = markingBusy || transactionBusy;
   const canMarkAsUsed = Boolean(isOwner && !gateWriteBusy && result?.valid && holderConfirmed);
+  const [challengeLinkCopied, setChallengeLinkCopied] = useState(false);
+
+  const handleCopyChallengeLink = useCallback(async () => {
+    if (!challengeUrl) return;
+    try {
+      await navigator.clipboard.writeText(challengeUrl);
+      setChallengeLinkCopied(true);
+      setTimeout(() => setChallengeLinkCopied(false), 2000);
+    } catch {
+      // Clipboard access can be unavailable (permissions, insecure context); the QR code remains usable.
+    }
+  }, [challengeUrl]);
 
   useEffect(() => setOrigin(window.location.origin), []);
 
@@ -524,6 +537,12 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
                         {!challengeExpired && challengeUrl ? (
                           <div className="gate-challenge-qr">
                             <QRCodeSVG value={challengeUrl} size={210} level="H" marginSize={4} title={`Holder challenge for TicketChain token ${activeChallenge.tokenId}`} />
+                            <button type="button" className="secondary-button full" onClick={handleCopyChallengeLink}>
+                              {challengeLinkCopied ? <><CheckCircle2 size={17} /> Link copied</> : <><Copy size={17} /> Copy challenge link</>}
+                            </button>
+                            <p className="helper-copy">
+                              If scanning opens a regular browser and MetaMask won&apos;t connect, paste this link into MetaMask&apos;s own in-app browser on the holder&apos;s phone instead.
+                            </p>
                           </div>
                         ) : (
                           <div className="gate-challenge-expired"><Clock3 size={25} /><strong>Challenge expired</strong></div>
