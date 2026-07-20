@@ -539,16 +539,20 @@ export default function GateClient({ initialTokenId }: { initialTokenId: string 
                         {!challengeExpired && challengeUrl ? (
                           <div className="gate-challenge-qr">
                             <QRCodeSVG value={challengeUrl} size={260} level="M" marginSize={4} title={`Holder challenge for TicketChain token ${activeChallenge.tokenId}`} />
-                            <button type="button" className="secondary-button full" onClick={handleCopyChallengeLink}>
-                              {challengeLinkCopied ? <><CheckCircle2 size={17} /> Link copied</> : <><Copy size={17} /> Copy challenge link</>}
-                            </button>
-                            <p className="helper-copy">
-                              If scanning opens a regular browser and MetaMask won&apos;t connect, paste this link into MetaMask&apos;s own in-app browser on the holder&apos;s phone instead.
-                            </p>
                           </div>
                         ) : (
                           <div className="gate-challenge-expired"><Clock3 size={25} /><strong>Challenge expired</strong></div>
                         )}
+                        {!challengeExpired && challengeUrl ? (
+                          <button type="button" className="secondary-button full" onClick={handleCopyChallengeLink}>
+                            {challengeLinkCopied ? <><CheckCircle2 size={17} /> Link copied</> : <><Copy size={17} /> Copy challenge link</>}
+                          </button>
+                        ) : null}
+                        {!challengeExpired && challengeUrl ? (
+                          <p className="helper-copy">
+                            If scanning opens a regular browser and MetaMask won&apos;t connect, paste this link into MetaMask&apos;s own in-app browser on the holder&apos;s phone instead.
+                          </p>
+                        ) : null}
                       </div>
 
                       <div className="gate-handoff-arrow" aria-hidden="true"><span>signature returns</span><span>→</span></div>

@@ -245,13 +245,15 @@ export default function VerifyTicketClient({ initialTokenId, challenge, hasChall
                             </div>
                           </div>
                           {proofPayload && !challengeExpired ? (
-                            <div className="holder-proof-qr">
-                              <QRCodeSVG value={proofPayload} size={320} level="M" marginSize={4} title={`Gate holder proof for TicketChain token ${challenge.tokenId}`} />
-                              <p>Present this QR before the challenge expires.</p>
+                            <>
+                              <div className="holder-proof-qr">
+                                <QRCodeSVG value={proofPayload} size={320} level="M" marginSize={4} title={`Gate holder proof for TicketChain token ${challenge.tokenId}`} />
+                                <p>Present this QR before the challenge expires.</p>
+                              </div>
                               <button type="button" className="secondary-button full" onClick={() => void handleCopyProof()}>
                                 {proofCopied ? <><CheckCircle2 size={17} /> Proof copied</> : <><Copy size={17} /> Copy proof (if the QR won&apos;t scan)</>}
                               </button>
-                            </div>
+                            </>
                           ) : (
                             <button className="primary-button" onClick={() => void signHolderProof()} disabled={signing || challengeExpired}>
                               <Wallet size={17} /> {signing ? "Awaiting MetaMask…" : challengeExpired ? "Challenge expired" : "Connect and sign proof"}

@@ -1468,7 +1468,8 @@ dd.address-value {
 .gate-challenge-qr,
 .gate-challenge-expired,
 .gate-handoff-step > .secondary-button,
-.gate-handoff-step > .gate-scanner-panel {
+.gate-handoff-step > .gate-scanner-panel,
+.gate-handoff-step > .helper-copy {
   grid-column: 1 / -1;
 }
 
@@ -1498,8 +1499,9 @@ dd.address-value {
 
 .gate-proof-paste summary {
   cursor: pointer;
-  font-weight: 700;
-  font-size: 13px;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 850;
 }
 
 .gate-proof-textarea {
