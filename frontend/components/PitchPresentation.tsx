@@ -111,6 +111,19 @@ export function PitchPresentation({ concertId, tokenId }: { concertId: string; t
       </div>
     </section>,
 
+    <section className="pitch-slide pitch-impact-slide" key="impact">
+      <SlideTitle eyebrow="02 · Market evidence" title="The cost of unprotected resale" />
+      <p className="pitch-lead">The problem is measurable: inflated prices, invalid tickets, and a sizeable secondary market. These figures are UK evidence, sourced below.</p>
+      <div className="pitch-impact-grid">
+        <article className="pitch-impact-feature"><p className="pitch-impact-stat">×8</p><h3>Face value can become speculation</h3><p>An IDLES ticket in Bristol was £59.65 at face value, but listed up to £480 on Viagogo while official tickets were still available.</p><a href="https://www.which.co.uk/news/article/tickets-for-popular-music-and-sports-events-listed-for-inflated-prices-on-viagogo-and-stubhub-aUa8T5w8tmLI" target="_blank" rel="noreferrer">Source: Which? <ExternalLink size={13} /></a></article>
+        <article><strong>Almost £10m</strong><h3>lost to ticket fraud</h3><p>Reported UK losses in 2024, up nearly 50% in one year.</p><a href="https://www.which.co.uk/campaigns/stop-fleecing-fans" target="_blank" rel="noreferrer">Which? / Action Fraud <ExternalLink size={13} /></a></article>
+        <article><strong>1 in 5</strong><h3>resale buyers have an issue</h3><p>And 6 in 10 affected buyers never made it into the event.</p><a href="https://www.which.co.uk/news/article/which-calls-for-a-price-cap-on-resale-tickets-and-tougher-enforcement-aTr7A8h0sETX" target="_blank" rel="noreferrer">Source: Which? <ExternalLink size={13} /></a></article>
+        <article><strong>1.9m</strong><h3>tickets resold online</h3><p>Worth about £350m across UK secondary platforms in 2019.</p><a href="https://assets.publishing.service.gov.uk/media/61163dd1d3bf7f63a54f5f94/Secondary_Tickets_Report.pdf" target="_blank" rel="noreferrer">Source: UK CMA <ExternalLink size={13} /></a></article>
+        <article><strong>£34 → £154</strong><h3>Royal Ascot</h3><p>A 352% mark-up on Viagogo, despite official tickets still being available.</p><a href="https://www.which.co.uk/news/article/tickets-for-popular-music-and-sports-events-listed-for-inflated-prices-on-viagogo-and-stubhub-aUa8T5w8tmLI" target="_blank" rel="noreferrer">Source: Which? <ExternalLink size={13} /></a></article>
+      </div>
+      <p className="pitch-slide-footnote">Why TicketChain matters: ownership proof, capped resale and one-time use directly address the risks these sources describe.</p>
+    </section>,
+
     <section className="pitch-slide pitch-chain-slide" key="chain">
       <SlideTitle eyebrow="03 · Design" title="Why blockchain?" />
       <p className="pitch-lead">The test: does it really need one? Yes — a classic database would not do this.</p>
@@ -179,7 +192,7 @@ export function PitchPresentation({ concertId, tokenId }: { concertId: string; t
     <section className="pitch-landing" ref={presentationRef} aria-label="TicketChain interactive presentation">
       <header className="pitch-landing-intro">
         <div><p className="pitch-overline">BTS · FinTech Summer School — Genève</p><h1>The TicketChain story</h1><p>A scrolling pitch with real product shortcuts at the moment they matter.</p></div>
-        <nav aria-label="Pitch sections"><a href="#pitch-section-1">Start</a><a href="#pitch-section-6">Proof</a><a href="#pitch-section-9">Live demo</a><a href="#pitch-section-13">Closing</a></nav>
+        <nav aria-label="Pitch sections"><a href="#pitch-section-1">Start</a><a href="#pitch-section-7">Proof</a><a href="#pitch-section-10">Live demo</a><a href="#pitch-section-14">Closing</a></nav>
       </header>
       <div className="pitch-landing-track">
         {slides.map((slide, index) => (
