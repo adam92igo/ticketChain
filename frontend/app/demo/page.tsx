@@ -27,7 +27,7 @@ export default function DemoPage() {
         eyebrow="Presentation preparation"
         title="Presentation scenario"
         description="Use this short order of operations to explain the TicketChain feature and prove each on-chain rule during a live presentation."
-        actions={<Link className="primary-button button-link" href="/organizer">Open Organizer Portal <ArrowRight size={17} /></Link>}
+        actions={<><Link className="primary-button button-link" href="/organizer">Open Organizer Portal <ArrowRight size={17} /></Link><Link className="secondary-button button-link" href="/pitch">Open interactive pitch <ArrowRight size={17} /></Link></>}
       />
 
       <p className="helper-copy">This page does not run a demo automatically. It tells you which real action to show next and what it proves.</p>
