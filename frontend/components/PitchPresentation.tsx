@@ -98,8 +98,8 @@ export function PitchPresentation({ concertId, tokenId }: { concertId: string; t
     <section className="pitch-slide" key="persona">
       <SlideTitle eyebrow="01 · Problem & persona" title="Who we serve" />
       <div className="pitch-persona-grid">
-        <article className="pitch-persona-card primary"><p className="pitch-overline">Primary persona · the buyer</p><h3>Karim, 38</h3><strong>Product lead at an independent ticketing operator</strong><p><b>Goal</b> cut fraud and capture a share of resale instead of letting it slip away.</p><p><b>Pain #1</b> the black market pockets all the speculation; he gets none. <em>[TO VALIDATE]</em></p><p><b>Today</b> classic ticketing (Eventbrite) with no cap and no independent verification.</p></article>
-        <article className="pitch-persona-card"><p className="pitch-overline">Secondary persona · the beneficiary</p><h3>Léa, 24</h3><strong>Student, buys and resells second-hand</strong><p><b>Goal</b> go to concerts without getting scammed; resell without losing money or being blamed.</p><p><b>Pain #1</b> fear of a ticket that&apos;s already used, fake, or sold to several people. <em>[TO VALIDATE]</em></p><p><b>Her role</b> her pain proves the problem is real — but she is not the one who signs.</p></article>
+        <article className="pitch-persona-card primary"><p className="pitch-overline">Primary persona · the buyer</p><h3>Karim, 38</h3><strong>Product lead at an independent ticketing operator</strong><p><b>Goal</b> cut fraud and capture a share of resale instead of letting it slip away.</p><p><b>Pain #1</b> the black market pockets all the speculation; he gets none.</p><p><b>Today</b> classic ticketing (Eventbrite) with no cap and no independent verification.</p></article>
+        <article className="pitch-persona-card"><p className="pitch-overline">Secondary persona · the beneficiary</p><h3>Léa, 24</h3><strong>Student, buys and resells second-hand</strong><p><b>Goal</b> go to concerts without getting scammed; resell without losing money or being blamed.</p><p><b>Pain #1</b> fear of a ticket that&apos;s already used, fake, or sold to several people. <em>Survey signal: 10 of 16 respondents rate this concern 4–5/5.</em></p><p><b>Her role</b> her pain proves the problem is real — but she is not the one who signs.</p></article>
       </div>
     </section>,
 
@@ -141,10 +141,11 @@ export function PitchPresentation({ concertId, tokenId }: { concertId: string; t
     </section>,
 
     <section className="pitch-slide" key="demand">
-      <SlideTitle eyebrow="04 · Validation" title="Proving demand — the evidence file" />
-      <p className="pitch-lead">To complete with your real signals before the pitch — it&apos;s 20% of the grade.</p>
-      <div className="pitch-demand-grid"><article><Users /><h3>Short survey</h3><p>Google Forms / Typeform, posted on Reddit & Discord.</p><strong>N = [ • ] responses</strong></article><article><Users /><h3>User interviews</h3><p>5 to 10 conversations with real fans / organizers.</p><strong>[ • ] real quotes</strong></article><article><Users /><h3>Communities</h3><p>Reddit / Discord threads of fans in the target segment.</p><strong>[ • ] links captured</strong></article><article><Users /><h3>Fake door / waitlist</h3><p>A landing page to measure real interest.</p><strong>[ • ] sign-ups</strong></article></div>
-      <p className="pitch-slide-footnote">Brief&apos;s advice: ask about past behavior (not “would you use it?”), talk to strangers, screenshot everything.</p>
+      <SlideTitle eyebrow="04 · Validation" title="Early demand signal — 16 responses" />
+      <p className="pitch-lead">A small July 2026 survey points to a familiar pattern: fans do buy tickets, do use informal resale routes, and do worry about the risk.</p>
+      <div className="pitch-demand-grid"><article><Ticket /><h3>81% bought a ticket</h3><p>13 of 16 respondents bought at least one concert ticket in the previous 12 months.</p><strong>13 / 16 respondents</strong></article><article><ArrowRight /><h3>50% used non-official resale</h3><p>8 of 16 had bought via a friend, reseller, social platform or other non-official route.</p><strong>8 / 16 respondents</strong></article><article><ShieldCheck /><h3>63% rate the risk 4–5 / 5</h3><p>Average concern about second-hand tickets without a guarantee: 3.7 / 5.</p><strong>10 / 16 respondents</strong></article><article><Users /><h3>44% tried to resell</h3><p>7 of 16 had attempted to resell a ticket they could no longer use.</p><strong>7 / 16 respondents</strong></article></div>
+      <p className="pitch-survey-insight">Among the eight people who used non-official resale, high prices and authenticity concerns were each selected by five respondents. The written answers also point to fragmented, unreliable resale experiences.</p>
+      <p className="pitch-slide-footnote">Convenience survey · 16 responses · July 2026. Directional evidence, not a representative market study; free-text answers have been anonymised and paraphrased.</p>
     </section>,
 
     <section className="pitch-slide" key="journey">

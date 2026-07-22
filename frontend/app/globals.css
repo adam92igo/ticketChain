@@ -2686,6 +2686,7 @@ dd.address-value {
 .pitch-demand-grid h3 { margin: 17px 0 5px; font-size: 20px; }
 .pitch-demand-grid p { margin-bottom: 15px; font-size: 13px; }
 .pitch-demand-grid strong { color: #bc7720; font-family: "Courier New", Courier, monospace; font-size: 12px; }
+.pitch-survey-insight { max-width: 880px; margin: 18px 0 0; border-left: 5px solid var(--deck-coral); padding: 13px 16px; background: rgba(255, 253, 248, 0.72); color: var(--deck-ink) !important; font-size: 15px; font-weight: 800; line-height: 1.45; }
 .pitch-slide-footnote { display: block; margin-top: 17px; color: var(--muted); font-size: 12px; }
 
 .pitch-journey-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
