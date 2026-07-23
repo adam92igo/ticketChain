@@ -53,3 +53,7 @@ Thumbs.db
 # Local AI-agent tooling (not needed by the jury/repo)
 .claude/
 .superpowers/
+
+# Kept locally for presenting, deliberately not tracked in git
+docs/bts-assignment/TicketChain-Pitch.pptx
+docs/bts-assignment/TicketChain-Jury-Navigation-Guide.pdf
