@@ -16,6 +16,7 @@ import type { Verification } from "@/lib/ticketchainTypes";
 
 export default function OrganizerClient({ initialConcertId }: { initialConcertId: string }) {
   const {
+    address,
     concerts,
     getConcertTickets,
     createConcert,
@@ -68,7 +69,12 @@ export default function OrganizerClient({ initialConcertId }: { initialConcertId
         eyebrow="Organizer operations"
         title="Organizer Portal"
         description="Manage real Sepolia concert inventory, issue tickets, and review the current on-chain status of every issued NFT."
-        actions={<StatusBadge label={isOwner ? "Organizer wallet" : "Read-only view"} tone={isOwner ? "green" : "amber"} />}
+        actions={
+          <StatusBadge
+            label={isOwner ? "Organizer wallet" : address ? "Create-only access" : "Not connected"}
+            tone={isOwner ? "green" : address ? "amber" : "gray"}
+          />
+        }
       />
 
       <section className="organizer-layout">
@@ -114,8 +120,9 @@ export default function OrganizerClient({ initialConcertId }: { initialConcertId
             <article className="workspace">
               <div className="section-heading">
                 <div><p className="eyebrow">Organizer desk</p><h2>Create concert</h2></div>
-                <StatusBadge label="Owner only" tone={isOwner ? "green" : "amber"} />
+                <StatusBadge label="Open to any wallet" tone={address ? "green" : "amber"} />
               </div>
+              <p className="helper-copy">Anyone can create a concert to try the flow — issuing tickets, cancelling, and marking entry as used remain restricted to the organizer wallet.</p>
               <FormInput label="Name" value={createForm.name} onChange={(name) => setCreateForm({ ...createForm, name })} />
               <FormInput label="Location" value={createForm.location} onChange={(location) => setCreateForm({ ...createForm, location })} />
               <FormInput label="Date" value={createForm.date} onChange={(date) => setCreateForm({ ...createForm, date })} />
@@ -124,10 +131,10 @@ export default function OrganizerClient({ initialConcertId }: { initialConcertId
                 <FormInput label="Max resale ETH" value={createForm.maxResalePrice} inputMode="decimal" onChange={(maxResalePrice) => setCreateForm({ ...createForm, maxResalePrice })} />
               </div>
               <FormInput label="Total tickets" value={createForm.totalSupply} inputMode="numeric" onChange={(totalSupply) => setCreateForm({ ...createForm, totalSupply })} />
-              <button className="primary-button full" onClick={() => void createConcert(createForm)} disabled={!isOwner || transactionBusy}>
+              <button className="primary-button full" onClick={() => void createConcert(createForm)} disabled={!address || transactionBusy}>
                 <Plus size={17} /> Create Concert
               </button>
-              {!isOwner ? <p className="helper-copy">Switch to the contract owner wallet to execute organizer transactions.</p> : null}
+              {!address ? <p className="helper-copy">Connect any wallet to create a concert.</p> : null}
             </article>
 
             <article className="workspace organizer-partner-panel">

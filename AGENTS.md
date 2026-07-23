@@ -11,10 +11,12 @@ Current compatible public deployment:
 ~~~text
 Network: Ethereum Sepolia
 Chain ID: 11155111
-Contract: 0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259
+Contract: 0x89Fb40bD170C0FB93e7B3575f19b09b6A49F70DE
 ~~~
 
-The former `0xd4aFD3b8D2290412Bf4521eC462aEB7Fc0D20149` deployment is legacy and incompatible with `getConcertTicketIds`.
+`createConcert` has no access restriction on this deployment: any connected wallet can create a concert so visitors can try the flow themselves. All other organizer actions (`cancelConcert`, `mintTicket`, `markAsUsed`, `withdraw`) remain `onlyOwner`.
+
+The previous compatible deployment, `0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259`, is fully featured but restricts `createConcert` to the owner wallet. The former `0xd4aFD3b8D2290412Bf4521eC462aEB7Fc0D20149` deployment is legacy and incompatible with `getConcertTicketIds`.
 
 ## 2. Mandatory Reading Order
 

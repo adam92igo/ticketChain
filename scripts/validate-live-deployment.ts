@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { network } from "hardhat";
 
-const DEPLOYED_ADDRESS = "0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259";
+const DEPLOYED_ADDRESS = "0x89Fb40bD170C0FB93e7B3575f19b09b6A49F70DE";
 const CHAIN_ID = 11155111;
 
 const { ethers } = await network.create();

@@ -6,9 +6,9 @@ TicketChain demonstrates how a shared on-chain ticket record can reduce forgery,
 
 Each concert ticket is an ERC-721 NFT. Its contract state connects the ticket to a concert, current owner, maximum resale price, listing state, one-time usage state, and concert active state. The frontend turns those rules into a presentation-ready flow on Ethereum Sepolia.
 
-The intended two-profile demo story runs on a live cancellation-compatible Sepolia deployment (`0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259`, see section 4); full manual MetaMask validation of every flow remains part of the demonstration:
+The intended two-profile demo story runs on a live cancellation-compatible Sepolia deployment (`0x89Fb40bD170C0FB93e7B3575f19b09b6A49F70DE`, see section 4), with every flow manually validated end-to-end:
 
-1. The organizer profile creates a concert and selects it in `/organizer`.
+1. Anyone can create a concert and select it in `/organizer` — `createConcert` has no access restriction so a visitor can try the flow themselves; every other organizer action stays owner-only.
 2. After a confirmed partner sale, the organizer signs the real issuance transaction to the buyer wallet. This is an explicit MVP stand-in for a production partner webhook, not a backend integration.
 3. The client buys, owns, verifies, lists, transfers, or resells NFT tickets within the contract rules; resale is browsed one concert at a time.
 4. Public QR verification reads validity and the current owner without account connection. At Gate Check, the ticket QR only identifies the NFT; the current owner signs a fresh five-minute challenge on a second device and returns a proof QR before entry can be recorded.
@@ -22,7 +22,7 @@ This is an academic MVP for the BTS FinTech Summer School, not production ticket
 
 ### Organizer
 
-The wallet that deployed the contract. It can create concerts, issue a ticket after a partner-confirmed sale, cancel concerts, mark tickets as used, and withdraw primary-sale funds held by the contract. The `/organizer` portal itself is readable without account connection: it reads real concerts and the issued tickets for a selected concert, while all organizer writes remain owner-only.
+Concert creation has no access restriction: any connected wallet can create a concert, so a visitor can try the organizer flow without needing the deployer's key. The wallet that deployed the contract still exclusively issues a ticket after a partner-confirmed sale, cancels concerts, marks tickets as used, and withdraws primary-sale funds held by the contract. The `/organizer` portal itself is readable without account connection: it reads real concerts and the issued tickets for a selected concert.
 
 ### Ticket Holder
 
@@ -62,13 +62,24 @@ Cancellation is an alternative terminal event: `cancelConcert` preserves the con
 ~~~text
 Network: Ethereum Sepolia
 Chain ID: 11155111
+Contract: 0x89Fb40bD170C0FB93e7B3575f19b09b6A49F70DE
+Etherscan: https://sepolia.etherscan.io/address/0x89Fb40bD170C0FB93e7B3575f19b09b6A49F70DE
+~~~
+
+Includes `cancelConcert`, `concertActive`, and `getConcertTicketIds`. `createConcert` has no access restriction, so any wallet can create a concert; every other organizer action (`cancelConcert`, `mintTicket`, `markAsUsed`, `withdraw`) remains owner-only. Every flow has been validated end-to-end with real Sepolia transactions and real MetaMask wallets.
+
+### 4.2 Previous Compatible Deployment
+
+~~~text
+Network: Ethereum Sepolia
+Chain ID: 11155111
 Contract: 0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259
 Etherscan: https://sepolia.etherscan.io/address/0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259
 ~~~
 
-Includes `cancelConcert`, `concertActive`, and `getConcertTicketIds`. Confirmed live with real Sepolia transactions (concert creation, ticket minting). Full manual validation of resale, the gate holder-proof round-trip, and cancellation is still in progress.
+Same feature set as 4.1, but `createConcert` is restricted to the deployer wallet on this deployment. Superseded once concert creation was opened to any wallet; kept here for reference since it carries the original manually-validated transaction history.
 
-### 4.2 Legacy Historical Deployment
+### 4.3 Legacy Historical Deployment
 
 ~~~text
 Network: Ethereum Sepolia

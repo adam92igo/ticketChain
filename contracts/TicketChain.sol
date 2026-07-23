@@ -66,7 +66,7 @@ contract TicketChain is ERC721Enumerable, Ownable, ReentrancyGuard {
         uint256 originalPrice,
         uint256 maxResalePrice,
         uint256 totalSupply
-    ) external onlyOwner returns (uint256 concertId) {
+    ) external returns (uint256 concertId) {
         require(bytes(name).length > 0, "Concert name required");
         require(bytes(location).length > 0, "Location required");
         require(bytes(date).length > 0, "Date required");
