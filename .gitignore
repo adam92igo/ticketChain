@@ -49,3 +49,7 @@ Thumbs.db
 
 # Local worktrees
 .worktrees/
+
+# Local AI-agent tooling (not needed by the jury/repo)
+.claude/
+.superpowers/

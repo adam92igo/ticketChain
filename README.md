@@ -6,6 +6,13 @@ TicketChain is a working blockchain ticketing MVP that represents each concert t
 
 **Status:** functional academic MVP. The cancellation, partner-sale, and concert-scoped resale revision is live on a compatible Sepolia deployment (see section 10); older public deployments cannot demonstrate cancellation expiry. It was created for the BTS FinTech Summer School and is not production-ready software.
 
+**For the jury:** no setup is required to review the project.
+
+- Live application: <https://ticket-chain-six.vercel.app>
+- Interactive pitch presentation: <https://ticket-chain-six.vercel.app/pitch>
+
+Read-only pages (`/about`, `/demo`, `/pitch`, and ticket verification by ID) work in any browser. Only wallet actions (buying, listing, creating a concert, marking a ticket as used) require MetaMask connected to the Sepolia test network, funded with free test ETH from a faucet — no real funds are ever involved. See section 5 for the full route map.
+
 ## 1. Quick Start
 
 This is the fastest path for a teammate who wants to prepare the frontend for the compatible public Sepolia deployment or a personal compatible deployment.
@@ -121,6 +128,7 @@ Blockchain does not solve every ticketing problem:
 | **/verify?tokenId=&lt;id&gt;** | Direct QR ticket verification | No connected account; MetaMask provider and Sepolia required | No |
 | **/demo** | Presentation scenario and recovery checklist | No | No |
 | **/about** | Product, lifecycle, and business explanation | No | No |
+| **/pitch** | Interactive scrolling pitch presentation, with real demo shortcuts when given `?concertId=` and `?tokenId=` | No | No |
 
 The current read contract is created from MetaMask's injected browser provider. Consequently, inspection does not request account access, but MetaMask must be installed and set to Sepolia.
 
@@ -201,6 +209,7 @@ Security rules:
 | **.env** | **SEPOLIA_PRIVATE_KEY** | Dedicated test organizer deployment key | Yes |
 | **frontend/.env.local** | **NEXT_PUBLIC_CONTRACT_ADDRESS** | Deployed TicketChain contract address | No |
 | **frontend/.env.local** | **NEXT_PUBLIC_CHAIN_ID** | Expected Sepolia chain ID | No |
+| **frontend/.env.local** | **NEXT_PUBLIC_APP_ORIGIN** | Optional override for the public origin used to build QR codes and verify/gate links; falls back to `window.location.origin` when unset | No |
 
 - The root **.env** file is used by Hardhat for deployment.
 - **frontend/.env.local** configures the Next.js frontend.
@@ -221,7 +230,7 @@ Etherscan: https://sepolia.etherscan.io/address/0xcf91d1Fcb5203152b3cAb6E320df11
 
 [Open the current TicketChain contract on Sepolia Etherscan](https://sepolia.etherscan.io/address/0xcf91d1Fcb5203152b3cAb6E320df11eDFe884259).
 
-This is the **cancellation-compatible deployment** for this revision: it includes `cancelConcert`, `concertActive` verification data, and `getConcertTicketIds`, and already carries real Sepolia transactions (concert creation and ticket minting), confirming the deployment itself is live and reachable. Full end-to-end MetaMask validation of every flow (resale between two wallets, the gate holder-proof round-trip, and concert cancellation) is still in progress — see the manual test guide in section 13. The deployment private key is not public and must never be shared.
+This is the **cancellation-compatible deployment** for this revision: it includes `cancelConcert`, `concertActive` verification data, and `getConcertTicketIds`. Every flow — primary purchase, concert-scoped resale between two wallets, the gate holder-proof round-trip, mark-as-used with double-use rejection, partner-sale issuance, and concert cancellation — has been validated end-to-end with real Sepolia transactions and real MetaMask wallets, both locally and on the deployed frontend (see the manual test guide in section 13 and `docs/bts-assignment/validation-results.md`). The deployment private key is not public and must never be shared.
 
 ### 10.2 Legacy Historical Deployment
 
@@ -406,7 +415,7 @@ Use the contract-owner wallet for the final write step and the current NFT owner
 8. Select **Mark as Used**, confirm the transaction, and wait for **Transaction confirmed**.
 9. Confirm the proof is cleared and the refreshed ticket shows **Already used / Entry denied**.
 
-The challenge URL uses `window.location.origin`. A `localhost` URL cannot normally be opened from a separate phone; use a deployed frontend or a LAN-accessible origin that both devices can reach. The returned proof is checked locally by the Gate Check device; no backend or indexer is involved.
+The challenge URL uses `window.location.origin` by default, or `NEXT_PUBLIC_APP_ORIGIN` when set (see section 9). A `localhost` URL cannot normally be opened from a separate phone; use a deployed frontend (or set `NEXT_PUBLIC_APP_ORIGIN` to its public URL) so both devices reach the same origin. The returned proof is checked locally by the Gate Check device; no backend or indexer is involved.
 
 Holder-proof rejection checks:
 
@@ -507,7 +516,7 @@ Inspect the selected wallet, token state, price, and recent transaction on Ether
 
 - Confirm the frontend is running on the expected host and port.
 - Reload My Tickets so the QR is generated from the current browser origin.
-- The QR uses **window.location.origin**. A QR generated on localhost will point another phone to that phone's localhost; use a deployed or LAN-accessible host for physical-device scanning.
+- The QR uses **window.location.origin**, or **NEXT_PUBLIC_APP_ORIGIN** when configured. A QR generated on localhost without that override will point another phone to that phone's localhost; use a deployed host, or set **NEXT_PUBLIC_APP_ORIGIN**, for physical-device scanning.
 
 ### Owner-Only Action Is Disabled
 
